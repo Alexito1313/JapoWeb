@@ -4,7 +4,7 @@
     {
       "name": "japones-app",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8181", "-d", "japones-app"],
+      "runtimeArgs": ["-m", "http.server", "8181"],
       "port": 8181
     }
   ]
