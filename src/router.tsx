@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from './AppShell'
+import { HomeScreen } from './screens/HomeScreen'
 import { Placeholder } from './screens/Placeholder'
 
 /**
@@ -18,7 +19,7 @@ export const router = createBrowserRouter(
       path: '/',
       element: <AppShell />,
       children: [
-        { index: true, element: <Placeholder name="Home" jp="ホーム" /> },
+        { index: true, element: <HomeScreen /> },
         { path: 'flash', element: <Placeholder name="Flashcards" jp="フラッシュカード" /> },
         { path: 'test', element: <Placeholder name="Test" jp="テスト" /> },
         { path: 'repaso', element: <Placeholder name="Repaso" jp="復習" /> },

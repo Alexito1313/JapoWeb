@@ -112,3 +112,33 @@ body {
   background: var(--accent);
   color: #fff;
 }
+
+/* ============================================================
+   Home — columna mobile-first centrada (el layout desktop llega en Fase 7).
+   El fondo decorativo (.washi-bg/.fuji-bg, position:absolute inset:0) se
+   recorta dentro de este contenedor relativo.
+   ============================================================ */
+.home-frame {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+.home-content {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 96px; /* hueco para el conmutador de tema flotante */
+}
+.home-loading {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--jp);
+  font-size: 13px;
+  color: var(--ink-3);
+  letter-spacing: 0.12em;
+}
