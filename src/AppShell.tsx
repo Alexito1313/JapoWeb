@@ -1,5 +1,7 @@
-import { Outlet } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme, type ThemePref } from './theme/ThemeProvider'
+import { ONBOARDED_KEY } from './screens/OnboardingScreen'
 
 const OPTIONS: { value: ThemePref; label: string }[] = [
   { value: 'light', label: '☀ Claro' },
@@ -10,6 +12,15 @@ const OPTIONS: { value: ThemePref; label: string }[] = [
 /** Layout raíz: contenido de la ruta + conmutador de tema flotante. */
 export function AppShell() {
   const { pref, setPref } = useTheme()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Primera visita → onboarding (salvo que ya haya progreso guardado).
+  useEffect(() => {
+    const onboarded =
+      localStorage.getItem(ONBOARDED_KEY) === '1' || !!localStorage.getItem('japoweb.progress')
+    if (!onboarded && location.pathname === '/') navigate('/onboarding', { replace: true })
+  }, [location.pathname, navigate])
 
   return (
     <div className="app-root">

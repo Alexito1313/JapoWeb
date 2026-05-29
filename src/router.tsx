@@ -3,6 +3,8 @@ import { AppShell } from './AppShell'
 import { HomeScreen } from './screens/HomeScreen'
 import { FlashcardScreen } from './screens/FlashcardScreen'
 import { TestScreen } from './screens/TestScreen'
+import { SettingsScreen } from './screens/SettingsScreen'
+import { OnboardingScreen } from './screens/OnboardingScreen'
 import { Placeholder } from './screens/Placeholder'
 
 /**
@@ -28,7 +30,8 @@ export const router = createBrowserRouter(
         { path: 'escritura', element: <Placeholder name="Escritura" jp="書き取り" /> },
         { path: 'simulacro', element: <Placeholder name="Simulacro JLPT" jp="模擬試験" /> },
         { path: 'stats', element: <Placeholder name="Estadísticas" jp="統計" /> },
-        { path: 'settings', element: <Placeholder name="Ajustes" jp="設定" /> },
+        { path: 'settings', element: <SettingsScreen /> },
+        { path: 'onboarding', element: <OnboardingScreen /> },
         { path: 'calendar', element: <Placeholder name="Calendario" jp="カレンダー" /> },
         { path: 'detail/:id', element: <Placeholder name="Detalle de carta" jp="詳細" /> },
       ],

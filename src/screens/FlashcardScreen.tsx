@@ -46,7 +46,8 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
   const [finished, setFinished] = useState(false)
   const startRef = useRef({ x: 0, y: 0, t: 0, moved: false })
 
-  const TOTAL_SESSION = mode === 'review' ? total : Math.min(20, total || 20)
+  const perSession = repo.getSnapshot().settings.cardsPerSession
+  const TOTAL_SESSION = mode === 'review' ? total : Math.min(perSession, total || perSession)
 
   const advance = useCallback(
     (correct: boolean) => {

@@ -58,7 +58,8 @@ export function TestScreen() {
   const [finished, setFinished] = useState(false)
   const advanceTimer = useRef<number | null>(null)
 
-  const TOTAL_SESSION = Math.min(20, total || 20)
+  const perSession = repo.getSnapshot().settings.cardsPerSession
+  const TOTAL_SESSION = Math.min(perSession, total || perSession)
   const card = total ? deck[index % total] : null
 
   const options = useMemo(

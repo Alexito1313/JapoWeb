@@ -1,0 +1,288 @@
+/* ============================================================
+   Pantalla de Ajustes
+   ============================================================ */
+
+.settings-wrap {
+  padding: 22px 18px 30px;
+  position: relative;
+  z-index: 1;
+}
+.settings-eyebrow {
+  font-family: var(--serif); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.settings-eyebrow::before {
+  content: ''; width: 14px; height: 1.5px;
+  background: var(--accent);
+}
+.settings-title {
+  font-family: var(--serif); font-weight: 700;
+  font-size: 24px; line-height: 1.2;
+  margin: 0 0 22px;
+  letter-spacing: -0.01em;
+}
+.settings-title .settings-sub {
+  display: block;
+  font-size: 12px; color: var(--ink-3);
+  font-weight: 400; letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* ========================== Section ========================== */
+.settings-section {
+  margin-bottom: 22px;
+}
+.settings-section-h {
+  font-family: var(--serif); font-weight: 700;
+  font-size: 13px; color: var(--ink);
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 10px;
+  letter-spacing: 0.04em;
+}
+.settings-section-h .strk {
+  display: inline-block; width: 22px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+}
+.settings-section-h .jp-side {
+  font-family: var(--jp); font-size: 11px;
+  color: var(--ink-3); font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.settings-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ========================== Row ========================== */
+.setting-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.setting-row:last-child { border-bottom: none; }
+.setting-info {
+  min-width: 0; flex: 1;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.setting-label {
+  font-family: var(--sans); font-size: 13.5px;
+  font-weight: 600; color: var(--ink);
+  display: flex; align-items: baseline; gap: 8px;
+}
+.setting-jp {
+  font-family: var(--jp); font-size: 10px;
+  color: var(--ink-3); font-weight: 400;
+  letter-spacing: 0.1em;
+}
+.setting-hint {
+  font-size: 11px; color: var(--ink-3);
+  line-height: 1.4;
+}
+.setting-control {
+  flex-shrink: 0;
+  display: flex; align-items: center;
+}
+.setting-value {
+  font-family: var(--serif); font-size: 14px;
+  font-weight: 700; color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.setting-value.muted {
+  font-family: var(--jp); font-size: 11px;
+  color: var(--ink-3); font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+/* ========================== Chips ========================== */
+.setting-chips {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 0;
+}
+.setting-chip {
+  background: transparent;
+  border: none;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-family: var(--sans); font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.setting-chip:hover { color: var(--ink); }
+.setting-chip.active {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 2px 6px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+/* font-size chips show "A" at increasing sizes — solo en el grupo .size */
+.setting-chips.size .setting-chip:nth-child(1):not(.active) { font-size: 11px; }
+.setting-chips.size .setting-chip:nth-child(2):not(.active) { font-size: 13px; }
+.setting-chips.size .setting-chip:nth-child(3):not(.active) { font-size: 15px; }
+.setting-chips.size .setting-chip.active { font-size: 13px; }
+
+/* ========================== Toggle ========================== */
+.setting-toggle {
+  width: 42px; height: 24px;
+  background: var(--border-2);
+  border: none;
+  border-radius: 999px;
+  padding: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s ease;
+}
+.setting-toggle .toggle-knob {
+  display: block;
+  width: 20px; height: 20px;
+  background: var(--bg-card);
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.setting-toggle.on {
+  background: var(--accent);
+}
+.setting-toggle.on .toggle-knob {
+  transform: translateX(18px);
+}
+
+/* ========================== Buttons ========================== */
+.settings-actions-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.setting-btn {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+  color: var(--ink); cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+.setting-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.setting-btn .b-glyph {
+  font-family: var(--serif); font-size: 14px;
+  font-weight: 700;
+}
+.setting-btn.ghost {}
+.setting-btn.danger {
+  background: transparent;
+  border: 1px solid color-mix(in oklab, var(--accent) 40%, var(--border));
+  color: var(--accent);
+  padding: 7px 14px;
+  font-size: 12px;
+}
+.setting-btn.danger:hover {
+  background: var(--accent); color: #fff;
+  border-color: var(--accent);
+}
+
+/* ========================== Footer ========================== */
+.settings-footer {
+  margin-top: 30px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px;
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--ink-3);
+  letter-spacing: 0.16em;
+  opacity: 0.6;
+}
+.settings-footer .brushstroke {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 50%, transparent 100%);
+  max-width: 80px;
+}
+
+/* ============================================================
+   Settings — escritorio
+   ============================================================ */
+
+.dt-settings-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 36px 30px 50px;
+  position: relative;
+  z-index: 1;
+}
+.dt-settings-eyebrow {
+  font-family: var(--serif); font-size: 12px; font-weight: 700;
+  letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.dt-settings-eyebrow::before {
+  content: ''; width: 18px; height: 1.5px;
+  background: var(--accent);
+}
+.dt-settings-title {
+  font-family: var(--serif); font-weight: 700;
+  font-size: 34px; line-height: 1.15;
+  margin: 0 0 28px;
+  letter-spacing: -0.02em;
+}
+.dt-settings-title .sub {
+  display: block;
+  font-size: 14px; color: var(--ink-3);
+  font-weight: 400; letter-spacing: 0.08em;
+  margin-top: 6px;
+}
+
+.dt-settings-section {
+  margin-bottom: 28px;
+}
+.dt-settings-section-h {
+  font-family: var(--serif); font-weight: 700;
+  font-size: 14px; color: var(--ink);
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 12px;
+  letter-spacing: 0.04em;
+}
+.dt-settings-section-h .strk {
+  display: inline-block; width: 22px; height: 2px;
+  background: var(--accent); border-radius: 2px;
+}
+.dt-settings-section-h .jp-side {
+  font-family: var(--jp); font-size: 12px;
+  color: var(--ink-3); font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+.dt-settings-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.dt-settings-card .setting-row {
+  padding: 14px 22px;
+}
+.dt-settings-card .settings-actions-row {
+  padding: 14px 22px;
+}
+.dt-settings-card .setting-btn {
+  padding: 11px 16px;
+  font-size: 13px;
+}

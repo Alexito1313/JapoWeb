@@ -10,6 +10,8 @@ import './styles/styles.css'
 import './styles/scenes.css'
 import './styles/styles-prototype.css'
 import './styles/styles-test-prototype.css'
+import './styles/styles-settings.css'
+import './styles/styles-onboarding.css'
 import './styles/app.css'
 
 createRoot(document.getElementById('root')!).render(
