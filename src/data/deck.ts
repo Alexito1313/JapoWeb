@@ -51,3 +51,12 @@ export function reviewDeck(
     .map((x) => x.c)
   return failed.length ? failed.slice(0, n) : content.kanji.slice(0, n)
 }
+
+/** Mazo de escritura: solo kanji de 1 carácter (KanjiVG), filtrado por la selección. */
+export function writeDeck(content: Content, selection?: Selection): Card[] {
+  let pool = content.writable
+  if (selection && selection.content !== 'vocab' && selection.blocks.length) {
+    pool = pool.filter((c) => selection.blocks.includes(c.block))
+  }
+  return shuffle(pool)
+}

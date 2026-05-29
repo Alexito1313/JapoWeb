@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useContent } from './useContent'
-import { buildDeck, reviewDeck, type Selection } from './deck'
+import { buildDeck, reviewDeck, writeDeck, type Selection } from './deck'
 import type { Card } from './content'
 import { useProgressRepo } from './progress/ProgressContext'
 
@@ -12,7 +12,7 @@ import { useProgressRepo } from './progress/ProgressContext'
  * se vuelva a barajar en cada re-render (al voltear, responder, etc.). Se
  * reconstruye solo si cambian el contenido, el modo o la selección.
  */
-export function useDeck(mode: 'study' | 'review' = 'study'): {
+export function useDeck(mode: 'study' | 'review' | 'write' = 'study'): {
   deck: Card[]
   loading: boolean
 } {
@@ -31,7 +31,9 @@ export function useDeck(mode: 'study' | 'review' = 'study'): {
     setDeck(
       mode === 'review'
         ? reviewDeck(content, repo.getSnapshot().cards)
-        : buildDeck(content, selection),
+        : mode === 'write'
+          ? writeDeck(content, selection)
+          : buildDeck(content, selection),
     )
     // selection se serializa en selKey para comparar por valor
     // eslint-disable-next-line react-hooks/exhaustive-deps

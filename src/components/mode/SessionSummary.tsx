@@ -10,7 +10,7 @@ export interface Answer {
 
 interface Props {
   variant: Variant
-  kind: 'study' | 'review' | 'test'
+  kind: 'study' | 'review' | 'test' | 'write'
   stats: { right: number; wrong: number }
   maxStreak: number
   answered: Answer[]
@@ -41,10 +41,26 @@ export function SessionSummary({
   const totalAns = answered.length
   const pct = totalAns > 0 ? Math.round((stats.right / totalAns) * 100) : 0
 
-  const eyebrow = kind === 'review' ? 'よくできました · 復習完了' : 'お疲れさま · 完了'
+  const eyebrow =
+    kind === 'review'
+      ? 'よくできました · 復習完了'
+      : kind === 'write'
+        ? 'よくできました · 書き取り完了'
+        : 'お疲れさま · 完了'
   const title =
-    kind === 'review' ? 'Repaso terminado.' : kind === 'test' ? 'Test terminado.' : 'Sesión terminada.'
-  const unit = kind === 'test' ? 'preguntas' : 'cartas'
+    kind === 'review'
+      ? 'Repaso terminado.'
+      : kind === 'test'
+        ? 'Test terminado.'
+        : kind === 'write'
+          ? 'Escritura terminada.'
+          : 'Sesión terminada.'
+  const unit = kind === 'test' ? 'preguntas' : kind === 'write' ? 'kanji' : 'cartas'
+  const accLbl = kind === 'write' ? 'bien' : 'acierto'
+  const goodLbl = kind === 'write' ? 'bien' : 'acertadas'
+  const badLbl = kind === 'write' ? 'a mejorar' : 'falladas'
+  const failHead = kind === 'write' ? 'Practicar más' : 'Para repasar'
+  const aceHead = kind === 'write' ? 'Bien escritas' : 'Bien dominadas'
 
   return (
     <div className="mode-frame proto">
@@ -56,45 +72,47 @@ export function SessionSummary({
           <h2 className="summary-title">
             {title}
             <span className="summary-sub">
-              {totalAns} {unit} · {pct}% acierto
+              {totalAns} {unit} · {pct}% {accLbl}
             </span>
           </h2>
 
           <div className="summary-big-stats">
             <div className="big-stat good">
               <span className="num">{stats.right}</span>
-              <span className="lbl">acertadas</span>
+              <span className="lbl">{goodLbl}</span>
             </div>
             <div className="big-stat-divider"></div>
             <div className="big-stat bad">
               <span className="num">{stats.wrong}</span>
-              <span className="lbl">falladas</span>
+              <span className="lbl">{badLbl}</span>
             </div>
           </div>
 
-          <div className="summary-stats-row">
-            <div className="mini-stat">
-              <span className="num">
-                {pct}
-                <small>%</small>
-              </span>
-              <span className="lbl">acierto</span>
+          {kind !== 'write' && (
+            <div className="summary-stats-row">
+              <div className="mini-stat">
+                <span className="num">
+                  {pct}
+                  <small>%</small>
+                </span>
+                <span className="lbl">acierto</span>
+              </div>
+              <div className="mini-stat">
+                <span className="num">{maxStreak}</span>
+                <span className="lbl">racha máx</span>
+              </div>
+              <div className="mini-stat">
+                <span className="num">{cards.length}</span>
+                <span className="lbl">únicas</span>
+              </div>
             </div>
-            <div className="mini-stat">
-              <span className="num">{maxStreak}</span>
-              <span className="lbl">racha máx</span>
-            </div>
-            <div className="mini-stat">
-              <span className="num">{cards.length}</span>
-              <span className="lbl">únicas</span>
-            </div>
-          </div>
+          )}
 
           {failed.length > 0 && (
             <div className="summary-section">
               <div className="summary-section-h">
                 <span className="strk bad"></span>
-                Para repasar
+                {failHead}
                 <span className="jp-side">復習</span>
                 <span className="cnt">{failed.length}</span>
               </div>
@@ -117,7 +135,7 @@ export function SessionSummary({
             <div className="summary-section">
               <div className="summary-section-h">
                 <span className="strk good"></span>
-                Bien dominadas
+                {aceHead}
                 <span className="jp-side">合格</span>
                 <span className="cnt">{aced.length}</span>
               </div>

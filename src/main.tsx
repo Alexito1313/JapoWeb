@@ -15,6 +15,7 @@ import './styles/styles-onboarding.css'
 import './styles/styles-stats.css'
 import './styles/styles-detail.css'
 import './styles/styles-calendar.css'
+import './styles/styles-write.css'
 import './styles/app.css'
 
 createRoot(document.getElementById('root')!).render(

@@ -8,6 +8,7 @@ import { OnboardingScreen } from './screens/OnboardingScreen'
 import { StatsScreen } from './screens/StatsScreen'
 import { DetailScreen } from './screens/DetailScreen'
 import { CalendarScreen } from './screens/CalendarScreen'
+import { WriteScreen } from './screens/WriteScreen'
 import { Placeholder } from './screens/Placeholder'
 
 /**
@@ -30,7 +31,7 @@ export const router = createBrowserRouter(
         { path: 'flash', element: <FlashcardScreen /> },
         { path: 'test', element: <TestScreen /> },
         { path: 'repaso', element: <FlashcardScreen mode="review" /> },
-        { path: 'escritura', element: <Placeholder name="Escritura" jp="書き取り" /> },
+        { path: 'escritura', element: <WriteScreen /> },
         { path: 'simulacro', element: <Placeholder name="Simulacro JLPT" jp="模擬試験" /> },
         { path: 'stats', element: <StatsScreen /> },
         { path: 'settings', element: <SettingsScreen /> },
