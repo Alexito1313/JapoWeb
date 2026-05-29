@@ -246,20 +246,6 @@ function ModeTiles({ go, content }: { go: (path: string) => void; content: Conte
   )
 }
 
-function StartButton({ count, onStart }: { count: number; onStart: () => void }) {
-  return (
-    <div className="start-wrap">
-      <button className="btn-start" onClick={onStart} disabled={count === 0}>
-        <div className="btn-start-content">
-          <span>Empezar · {count} cartas</span>
-          <span className="sub">始めましょう</span>
-        </div>
-        <span className="arrow">→</span>
-      </button>
-    </div>
-  )
-}
-
 /* ---------- pantalla principal ---------- */
 
 export function HomeScreen() {
@@ -430,8 +416,6 @@ export function HomeScreen() {
 
             <SectionTitle title="Modo de estudio" jp="学習方法" />
             <ModeTiles go={goStudy} content={contentSel} />
-
-            <StartButton count={total} onStart={() => goStudy('/flash')} />
           </div>
         )}
       </div>
