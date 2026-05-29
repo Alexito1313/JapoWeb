@@ -218,7 +218,9 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
               setDragging(false)
             }}
           >
-            <div className={'flip-card' + (flipped ? ' is-flipped' : '')}>
+            {/* key={index}: cada carta es un elemento nuevo, así la siguiente
+                nace sin girar (sin transición de giro que enseñe la respuesta). */}
+            <div key={index} className={'flip-card' + (flipped ? ' is-flipped' : '')}>
               <div className="flip-inner">
                 <div className="flip-face front">
                   <div className="fcard proto-card">
