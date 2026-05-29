@@ -91,7 +91,13 @@ function DailyMini({ card, onOpen }: { card: Card; onOpen: () => void }) {
   )
 }
 
-function LevelSelector() {
+function LevelSelector({
+  active,
+  onSelect,
+}: {
+  active: string | null
+  onSelect: (id: string) => void
+}) {
   const levels = [
     { id: 'J1', sub: '1º año', locked: true },
     { id: 'J2', sub: '2º año', locked: true },
@@ -105,10 +111,15 @@ function LevelSelector() {
     <div className="levels">
       {levels.map((l) => {
         let cls = 'level'
-        if (l.id === 'J3') cls += ' active'
+        if (l.id === active) cls += ' active'
         else if (l.locked) cls += ' locked'
         return (
-          <button key={l.id} className={cls} disabled={l.locked}>
+          <button
+            key={l.id}
+            className={cls}
+            disabled={l.locked}
+            onClick={() => !l.locked && onSelect(l.id)}
+          >
             <span className="l-id">{l.id}</span>
             <span className="l-sub">{l.sub}</span>
           </button>
@@ -122,7 +133,7 @@ function ContentChips({
   active,
   onSelect,
 }: {
-  active: ContentSel
+  active: ContentSel | null
   onSelect: (id: ContentSel) => void
 }) {
   const items: { id: ContentSel; label: string; jp: string }[] = [
@@ -271,9 +282,10 @@ export function HomeScreen() {
   const navigate = useNavigate()
   const go = (path: string) => navigate(path)
 
-  const [contentSel, setContentSel] = useState<ContentSel>('kanji')
+  const [levelSel, setLevelSel] = useState<string | null>(null)
+  const [contentSel, setContentSel] = useState<ContentSel | null>(null)
   const [typeSel, setTypeSel] = useState('Todos')
-  const [deselected, setDeselected] = useState<Set<string>>(new Set())
+  const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set())
 
   const greet = useMemo(() => greeting(), [])
   const kanjiCounts = useMemo(() => (content ? countByBlock(content.kanji) : {}), [content])
@@ -281,35 +293,50 @@ export function HomeScreen() {
 
   const blocks = useMemo(() => {
     const out: { id: string; count: number }[] = []
+    if (!contentSel) return out
     if (contentSel !== 'vocab') KANJI_BLOCKS.forEach((b) => out.push({ id: b, count: kanjiCounts[b] ?? 0 }))
     if (contentSel !== 'kanji') VOCAB_BLOCKS.forEach((b) => out.push({ id: b, count: vocabCounts[b] ?? 0 }))
     return out
   }, [contentSel, kanjiCounts, vocabCounts])
 
-  const total = blocks.filter((b) => !deselected.has(b.id)).reduce((s, b) => s + b.count, 0)
+  const total = blocks.filter((b) => selectedBlocks.has(b.id)).reduce((s, b) => s + b.count, 0)
 
   const selection: Selection = {
-    content: contentSel,
-    blocks: blocks.filter((b) => !deselected.has(b.id)).map((b) => b.id),
+    content: contentSel ?? 'kanji',
+    blocks: blocks.filter((b) => selectedBlocks.has(b.id)).map((b) => b.id),
   }
-  const goStudy = (path: string) => navigate(path, { state: { selection } })
+  const goStudy = (path: string) => {
+    if (!contentSel || selectedBlocks.size === 0) return
+    navigate(path, { state: { selection } })
+  }
 
   const daily = useMemo(
     () => (content && content.kanji.length ? content.kanji[dailyIndex(content.kanji.length)] : null),
     [content],
   )
 
+  const selectLevel = (id: string) => {
+    setLevelSel(id)
+    // cambiar de nivel reinicia lo de abajo (la cascada se recalcula)
+    setContentSel(null)
+    setSelectedBlocks(new Set())
+  }
   const changeContent = (c: ContentSel) => {
     setContentSel(c)
-    setDeselected(new Set())
+    setSelectedBlocks(new Set()) // los bloques cambian según el contenido
   }
   const toggleBlock = (id: string) =>
-    setDeselected((prev) => {
+    setSelectedBlocks((prev) => {
       const n = new Set(prev)
       if (n.has(id)) n.delete(id)
       else n.add(id)
       return n
     })
+
+  // Cascada: cada paso aparece cuando el anterior está elegido.
+  const showContent = levelSel !== null
+  const showBlocks = showContent && contentSel !== null
+  const showStudy = showBlocks && selectedBlocks.size > 0
 
   if (loading || !content) {
     return (
@@ -357,26 +384,42 @@ export function HomeScreen() {
           <DailyMini card={daily} onOpen={() => go(`/detail/${encodeURIComponent(daily.jp)}`)} />
         )}
 
-        <SectionTitle title="Nivel" jp="級" toggle="J3 activo" />
-        <LevelSelector />
+        <SectionTitle title="Nivel" jp="級" toggle={levelSel ? `${levelSel} activo` : 'elige nivel'} />
+        <LevelSelector active={levelSel} onSelect={selectLevel} />
 
-        <SectionTitle title="Contenido" jp="教材" />
-        <ContentChips active={contentSel} onSelect={changeContent} />
+        {showContent && (
+          <div className="reveal">
+            <SectionTitle title="Contenido" jp="教材" />
+            <ContentChips active={contentSel} onSelect={changeContent} />
+          </div>
+        )}
 
-        <SectionTitle
-          title="Bloques"
-          jp={contentSel === 'vocab' ? 'MNN · L26—L36' : 'J3 · D1—D10'}
-          toggle={`${total} cartas`}
-        />
-        <BlockGrid blocks={blocks} isSelected={(id) => !deselected.has(id)} onToggle={toggleBlock} />
+        {showBlocks && (
+          <div className="reveal">
+            <SectionTitle
+              title="Bloques"
+              jp={contentSel === 'vocab' ? 'MNN · L26—L36' : 'J3 · D1—D10'}
+              toggle={total ? `${total} cartas` : 'elige bloques'}
+            />
+            <BlockGrid
+              blocks={blocks}
+              isSelected={(id) => selectedBlocks.has(id)}
+              onToggle={toggleBlock}
+            />
+          </div>
+        )}
 
-        <SectionTitle title="Filtro por tipo" jp="品詞" />
-        <TypeChips active={typeSel} onSelect={setTypeSel} />
+        {showStudy && (
+          <div className="reveal">
+            <SectionTitle title="Filtro por tipo" jp="品詞" />
+            <TypeChips active={typeSel} onSelect={setTypeSel} />
 
-        <SectionTitle title="Modo de estudio" jp="学習方法" />
-        <ModeTiles go={goStudy} />
+            <SectionTitle title="Modo de estudio" jp="学習方法" />
+            <ModeTiles go={goStudy} />
 
-        <StartButton count={total} onStart={() => goStudy('/flash')} />
+            <StartButton count={total} onStart={() => goStudy('/flash')} />
+          </div>
+        )}
       </div>
     </div>
   )

@@ -262,3 +262,26 @@ body {
 .cal-stats .cs .n {
   font-size: clamp(22px, 4.8vmin, 29px);
 }
+
+/* ============================================================
+   Cascada del Home (divulgación progresiva): cada sección entra con
+   un fundido suave cuando el usuario elige el paso anterior.
+   ============================================================ */
+.reveal {
+  animation: reveal-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    animation: none;
+  }
+}
