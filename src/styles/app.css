@@ -288,31 +288,26 @@ body {
 
 /* ============================================================
    Flashcards — sensación de "mazo del que descartas". La carta saliente se
-   DESMONTA (key en el wrap, ya no rebota) y la siguiente SUBE a su sitio
-   (desplazamiento + fundido). La animación va en un WRAPPER (.card-rise), NO en
-   .flip-card: poner un transform sobre .flip-card (que tiene la `perspective`
-   del giro 3D) rompía backface-visibility en iOS y se veían las dos caras
-   solapadas. `backwards` deja el wrapper sin transform tras la entrada.
-   NOTA: el preview no avanza las animaciones CSS (rAF congelado); verificar en
-   dispositivo real.
+   DESMONTA (key en el wrap, ya no rebota) y la nueva entra con un FUNDIDO.
+   IMPORTANTE iOS: NO animar ningún `transform` en la cadena del flip (wrap →
+   flip-card → flip-inner → caras). Un transform animado —aunque sea en un
+   wrapper aparte— flattenea el contexto 3D en iOS Safari y rompe
+   backface-visibility → se veían las dos caras solapadas. Por eso la entrada es
+   SOLO opacidad (esto ya funcionaba en iOS). No reintroducir translateY/scale.
    ============================================================ */
-.card-rise {
-  width: 100%;
-  height: 100%;
-  animation: fcard-rise 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+.flip-card {
+  animation: fcard-in 0.3s ease both;
 }
-@keyframes fcard-rise {
+@keyframes fcard-in {
   from {
     opacity: 0;
-    transform: translateY(18px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .card-rise {
+  .flip-card {
     animation: none;
   }
 }
