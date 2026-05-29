@@ -287,27 +287,28 @@ body {
 }
 
 /* ============================================================
-   Flashcards — sensación de "mazo del que descartas". La carta saliente se
-   DESMONTA (key en el wrap, ya no rebota) y la nueva entra con un FUNDIDO.
-   IMPORTANTE iOS: NO animar ningún `transform` en la cadena del flip (wrap →
-   flip-card → flip-inner → caras). Un transform animado —aunque sea en un
-   wrapper aparte— flattenea el contexto 3D en iOS Safari y rompe
-   backface-visibility → se veían las dos caras solapadas. Por eso la entrada es
-   SOLO opacidad (esto ya funcionaba en iOS). No reintroducir translateY/scale.
+   Flashcards — flip a prueba de iOS. iOS Safari a veces ignora
+   `backface-visibility: hidden` y mostraba las DOS caras solapadas al girar (el
+   kanji del anverso encima de la respuesta). Refuerzo: además del backface, se
+   oculta con OPACIDAD la cara que no mira al usuario, intercambiándolas a mitad
+   del giro (delay = mitad de --flip-dur, cuando la carta está de canto → no se
+   nota). Funciona aunque iOS aplane el 3D: la cara trasera lleva su propio
+   rotateY(180), así al girar el inner queda a 360° (orientación correcta).
+   No se anima opacity/transform en .flip-card ni wrappers (eso aplanaba el 3D
+   y disparaba el bug). La carta saliente sigue desmontándose por el key del wrap.
    ============================================================ */
-.flip-card {
-  animation: fcard-in 0.3s ease both;
+.flip-face {
+  transition: opacity 0s linear calc(var(--flip-dur, 650ms) / 2);
 }
-@keyframes fcard-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.flip-face.front {
+  opacity: 1;
 }
-@media (prefers-reduced-motion: reduce) {
-  .flip-card {
-    animation: none;
-  }
+.flip-face.back {
+  opacity: 0;
+}
+.flip-card.is-flipped .flip-face.front {
+  opacity: 0;
+}
+.flip-card.is-flipped .flip-face.back {
+  opacity: 1;
 }
