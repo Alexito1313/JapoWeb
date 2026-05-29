@@ -7,6 +7,8 @@ import { ThemeProvider } from './theme/ThemeProvider'
 // Sistema visual del handoff (tokens .va/.vb + componentes) y escena decorativa.
 import './styles/styles.css'
 import './styles/scenes.css'
+import './styles/styles-prototype.css'
+import './styles/styles-test-prototype.css'
 import './styles/app.css'
 
 createRoot(document.getElementById('root')!).render(

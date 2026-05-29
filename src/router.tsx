@@ -1,6 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom'
 import { AppShell } from './AppShell'
 import { HomeScreen } from './screens/HomeScreen'
+import { FlashcardScreen } from './screens/FlashcardScreen'
+import { TestScreen } from './screens/TestScreen'
 import { Placeholder } from './screens/Placeholder'
 
 /**
@@ -20,9 +22,9 @@ export const router = createBrowserRouter(
       element: <AppShell />,
       children: [
         { index: true, element: <HomeScreen /> },
-        { path: 'flash', element: <Placeholder name="Flashcards" jp="フラッシュカード" /> },
-        { path: 'test', element: <Placeholder name="Test" jp="テスト" /> },
-        { path: 'repaso', element: <Placeholder name="Repaso" jp="復習" /> },
+        { path: 'flash', element: <FlashcardScreen /> },
+        { path: 'test', element: <TestScreen /> },
+        { path: 'repaso', element: <FlashcardScreen mode="review" /> },
         { path: 'escritura', element: <Placeholder name="Escritura" jp="書き取り" /> },
         { path: 'simulacro', element: <Placeholder name="Simulacro JLPT" jp="模擬試験" /> },
         { path: 'stats', element: <Placeholder name="Estadísticas" jp="統計" /> },

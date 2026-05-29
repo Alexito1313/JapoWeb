@@ -9,6 +9,7 @@ import {
   dailyIndex,
   type Card,
 } from '../data/content'
+import type { Selection } from '../data/deck'
 import { Backdrop } from '../components/Backdrop'
 import { Topbar } from '../components/Topbar'
 
@@ -278,6 +279,12 @@ export function HomeScreen() {
 
   const total = blocks.filter((b) => !deselected.has(b.id)).reduce((s, b) => s + b.count, 0)
 
+  const selection: Selection = {
+    content: contentSel,
+    blocks: blocks.filter((b) => !deselected.has(b.id)).map((b) => b.id),
+  }
+  const goStudy = (path: string) => navigate(path, { state: { selection } })
+
   const daily = useMemo(
     () => (content && content.kanji.length ? content.kanji[dailyIndex(content.kanji.length)] : null),
     [content],
@@ -342,9 +349,9 @@ export function HomeScreen() {
         <TypeChips active={typeSel} onSelect={setTypeSel} />
 
         <SectionTitle title="Modo de estudio" jp="学習方法" />
-        <ModeTiles go={go} />
+        <ModeTiles go={goStudy} />
 
-        <StartButton count={total} onStart={() => go('/flash')} />
+        <StartButton count={total} onStart={() => goStudy('/flash')} />
       </div>
     </div>
   )

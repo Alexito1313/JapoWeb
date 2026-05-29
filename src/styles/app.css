@@ -142,3 +142,31 @@ body {
   color: var(--ink-3);
   letter-spacing: 0.12em;
 }
+
+/* ============================================================
+   Modos (Flashcards/Test/Repaso): marco a pantalla completa.
+   Sustituye al .app-frame del prototipo (que era height:100% del marco-móvil).
+   .mode-inner = layout flex (sin scroll); .mode-scroll = resumen (con scroll).
+   ============================================================ */
+.mode-frame {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+}
+.mode-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.mode-scroll {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  overflow-y: auto;
+}
