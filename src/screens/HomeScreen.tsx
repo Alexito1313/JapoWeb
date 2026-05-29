@@ -210,7 +210,9 @@ function BlockGrid({
   )
 }
 
-function ModeTiles({ go }: { go: (path: string) => void }) {
+function ModeTiles({ go, content }: { go: (path: string) => void; content: ContentSel | null }) {
+  // La escritura (trazar el kanji) es exclusiva de kanji; no aplica a vocabulario.
+  const showWrite = content !== 'vocab'
   return (
     <div className="modes">
       <div className="mode primary" onClick={() => go('/flash')} style={{ cursor: 'pointer' }}>
@@ -229,7 +231,12 @@ function ModeTiles({ go }: { go: (path: string) => void }) {
         <div className="m-title">Opción múltiple</div>
         <div className="m-desc">4 opciones del mismo tipo</div>
       </div>
-      <div className="mode" onClick={() => go('/repaso')} style={{ cursor: 'pointer' }}>
+      {/* Si no hay Escritura, Repaso ocupa el ancho completo para no dejar hueco. */}
+      <div
+        className={'mode' + (showWrite ? '' : ' full')}
+        onClick={() => go('/repaso')}
+        style={{ cursor: 'pointer' }}
+      >
         <div className="m-row">
           <span className="m-kanji">復</span>
           <span className="m-pill">REPASO</span>
@@ -237,15 +244,17 @@ function ModeTiles({ go }: { go: (path: string) => void }) {
         <div className="m-title">Más falladas</div>
         <div className="m-desc">Las que peor llevas, primero</div>
       </div>
-      <div className="mode" onClick={() => go('/escritura')} style={{ cursor: 'pointer' }}>
-        <div className="m-row">
-          <span className="m-kanji">書</span>
-          <span className="m-pill">PRÓX.</span>
+      {showWrite && (
+        <div className="mode" onClick={() => go('/escritura')} style={{ cursor: 'pointer' }}>
+          <div className="m-row">
+            <span className="m-kanji">書</span>
+            <span className="m-pill">PRÓX.</span>
+          </div>
+          <div className="m-title">Escritura</div>
+          <div className="m-desc">Trazar el kanji con el dedo</div>
+          <div className="new-pill">新</div>
         </div>
-        <div className="m-title">Escritura</div>
-        <div className="m-desc">Trazar el kanji con el dedo</div>
-        <div className="new-pill">新</div>
-      </div>
+      )}
       <div className="mode full" onClick={() => go('/simulacro')} style={{ cursor: 'pointer' }}>
         <div className="m-row">
           <span className="m-kanji">検</span>
@@ -411,11 +420,17 @@ export function HomeScreen() {
 
         {showStudy && (
           <div className="reveal">
-            <SectionTitle title="Filtro por tipo" jp="品詞" />
-            <TypeChips active={typeSel} onSelect={setTypeSel} />
+            {/* El filtro por tipo es gramatical (verbos, sustantivos…) → solo vocab.
+                El kanji se estudia por bloques, así que se salta este paso. */}
+            {contentSel === 'vocab' && (
+              <>
+                <SectionTitle title="Filtro por tipo" jp="品詞" />
+                <TypeChips active={typeSel} onSelect={setTypeSel} />
+              </>
+            )}
 
             <SectionTitle title="Modo de estudio" jp="学習方法" />
-            <ModeTiles go={goStudy} />
+            <ModeTiles go={goStudy} content={contentSel} />
 
             <StartButton count={total} onStart={() => goStudy('/flash')} />
           </div>
