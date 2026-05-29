@@ -9,6 +9,7 @@ import { StatsScreen } from './screens/StatsScreen'
 import { DetailScreen } from './screens/DetailScreen'
 import { CalendarScreen } from './screens/CalendarScreen'
 import { TablasScreen } from './screens/TablasScreen'
+import { TraceScreen } from './screens/TraceScreen'
 import { WriteScreen } from './screens/WriteScreen'
 import { SimulacroScreen } from './screens/SimulacroScreen'
 import { Placeholder } from './screens/Placeholder'
@@ -40,6 +41,7 @@ export const router = createBrowserRouter(
         { path: 'onboarding', element: <OnboardingScreen /> },
         { path: 'calendar', element: <CalendarScreen /> },
         { path: 'tablas', element: <TablasScreen /> },
+        { path: 'trazar/:char', element: <TraceScreen /> },
         { path: 'detail/:id', element: <DetailScreen /> },
       ],
     },
