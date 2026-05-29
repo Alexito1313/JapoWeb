@@ -226,11 +226,10 @@ function ModeTiles({ go, content }: { go: (path: string) => void; content: Conte
         <div className="mode" onClick={() => go('/escritura')} style={{ cursor: 'pointer' }}>
           <div className="m-row">
             <span className="m-kanji">書</span>
-            <span className="m-pill">PRÓX.</span>
+            <span className="m-pill">KANJI</span>
           </div>
           <div className="m-title">Escritura</div>
           <div className="m-desc">Trazar el kanji con el dedo</div>
-          <div className="new-pill">新</div>
         </div>
       )}
       <div className="mode full" onClick={() => go('/simulacro')} style={{ cursor: 'pointer' }}>
@@ -240,7 +239,6 @@ function ModeTiles({ go, content }: { go: (path: string) => void; content: Conte
         </div>
         <div className="m-title">Simulacro cronometrado</div>
         <div className="m-desc">formato N4 · cronometrado</div>
-        <div className="new-pill">新</div>
       </div>
     </div>
   )
