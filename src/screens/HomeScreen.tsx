@@ -263,7 +263,7 @@ function StartButton({ count, onStart }: { count: number; onStart: () => void })
 /* ---------- pantalla principal ---------- */
 
 export function HomeScreen() {
-  const { variant, setPref } = useTheme()
+  const { variant } = useTheme()
   const { content, loading } = useContent()
   const { snapshot } = useProgress()
   const navigate = useNavigate()
@@ -370,13 +370,8 @@ export function HomeScreen() {
       <div className="home-content">
         <div className="home-header">
           <LevelChip />
-          <button
-            className="home-theme-toggle"
-            onClick={() => setPref(variant === 'b' ? 'light' : 'dark')}
-            aria-label="Cambiar tema"
-          >
-            {variant === 'b' ? '☀' : '☾'}
-          </button>
+          {/* Hueco derecho reservado para el icono de Cuenta (Fase E):
+              perfil → stats + opciones de cuenta. */}
         </div>
 
         <div className="greet-wrap">
