@@ -6,7 +6,7 @@ import { useProgressRepo } from '../data/progress/ProgressContext'
 import type { Card } from '../data/content'
 import { loadKvg, measurePath, matchStroke, pathTotalLength, type Pt } from '../data/kanjivg'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { StudyHeader } from '../components/StudyHeader'
 import { ProgressMeta } from '../components/mode/ProgressMeta'
 import { SessionSummary, type Answer } from '../components/mode/SessionSummary'
 
@@ -375,7 +375,7 @@ export function WriteScreen() {
     <div className="mode-frame proto">
       <Backdrop variant={variant} />
       <div className="mode-inner">
-        <Topbar />
+        <StudyHeader title="Escritura" subtitle="書 · trazar el kanji" />
 
         <div className="write-banner">
           <span className="wb-glyph">書</span>

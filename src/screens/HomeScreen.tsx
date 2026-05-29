@@ -13,7 +13,6 @@ import {
 } from '../data/content'
 import type { Selection } from '../data/deck'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
 
 type ContentSel = 'kanji' | 'vocab' | 'both'
 
@@ -414,8 +413,6 @@ export function HomeScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
-        <Topbar active="home" />
-
         <div className="greet-wrap">
           <div className="greet-eyebrow">
             <span className="dot"></span>

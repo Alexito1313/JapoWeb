@@ -5,7 +5,7 @@ import { useDeck } from '../data/useDeck'
 import { useProgressRepo } from '../data/progress/ProgressContext'
 import type { Card } from '../data/content'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { StudyHeader } from '../components/StudyHeader'
 import { ProgressMeta } from '../components/mode/ProgressMeta'
 import { StreakChip } from '../components/mode/StreakChip'
 import { SessionSummary, type Answer } from '../components/mode/SessionSummary'
@@ -175,7 +175,7 @@ export function TestScreen() {
     <div className="mode-frame proto" style={SPEED_VARS as CSSProperties}>
       <Backdrop variant={variant} />
       <div className="mode-inner">
-        <Topbar />
+        <StudyHeader title="Test" subtitle="試 · opción múltiple" />
 
         <ProgressMeta index={progressIndex} total={TOTAL_SESSION} right={stats.right} wrong={stats.wrong} />
 

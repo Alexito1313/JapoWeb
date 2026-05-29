@@ -5,7 +5,7 @@ import { useContent } from '../data/useContent'
 import { useProgressRepo } from '../data/progress/ProgressContext'
 import { buildExam, type ExamQuestion } from '../data/exam'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { StudyHeader } from '../components/StudyHeader'
 
 const EXAM_N = 10
 const EXAM_SECONDS = 10 * 60
@@ -92,7 +92,7 @@ export function SimulacroScreen() {
       <div className="mode-frame proto sim">
         <Backdrop variant={variant} />
         <div className="mode-inner">
-          <Topbar />
+          <StudyHeader title="Simulacro" subtitle="検 · JLPT N4" />
           <div className="sim-intro">
             <div className="sim-seal">検</div>
             <div className="sim-intro-eyebrow">模擬試験 · simulacro</div>
@@ -157,7 +157,7 @@ export function SimulacroScreen() {
       <div className="mode-frame proto sim">
         <Backdrop variant={variant} />
         <div className="mode-scroll">
-          <Topbar />
+          <StudyHeader title="Simulacro" subtitle="検 · JLPT N4" />
           <div className="sim-results">
             <div className={'sim-verdict ' + (passed ? 'pass' : 'fail')}>
               <div className="sv-seal">{passed ? '合' : '否'}</div>

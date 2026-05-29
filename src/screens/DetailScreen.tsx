@@ -6,7 +6,6 @@ import { useProgress } from '../data/progress/ProgressContext'
 import { DAY_MS } from '../data/progress/srs'
 import { TYPE_LABELS } from '../data/stats'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
 
 function relPast(ts: number): string {
   if (!ts) return 'nunca'
@@ -79,7 +78,6 @@ export function DetailScreen() {
       <div className="home-frame">
         <Backdrop variant={variant} />
         <div className="home-content">
-          <Topbar />
           <div className="detail-wrap">
             <button className="detail-back" onClick={() => navigate('/')}>
               <span className="db-arrow">←</span>
@@ -104,8 +102,6 @@ export function DetailScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
-        <Topbar />
-
         <div className="detail-wrap">
           <button className="detail-back" onClick={() => navigate(-1)}>
             <span className="db-arrow">←</span>

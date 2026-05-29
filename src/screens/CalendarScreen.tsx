@@ -3,7 +3,6 @@ import { useTheme } from '../theme/ThemeProvider'
 import { useProgress } from '../data/progress/ProgressContext'
 import { dayKey } from '../data/progress/srs'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
 
 const WEEK_LABELS = ['月', '火', '水', '木', '金', '土', '日']
 const MONTHS_ES = [
@@ -77,8 +76,6 @@ export function CalendarScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
-        <Topbar active="stats" />
-
         <div className="cal-wrap">
           <div className="cal-eyebrow">Calendario · 学習カレンダー</div>
           <h1 className="cal-title">

@@ -130,7 +130,12 @@ body {
 .home-content {
   position: relative;
   z-index: 1;
-  padding-bottom: 96px; /* hueco para el conmutador de tema flotante */
+  padding-top: env(safe-area-inset-top, 0px); /* respeta el notch/status bar */
+  padding-bottom: 96px;
+}
+/* Cuando hay tab bar inferior, reservar su altura para que no tape el contenido. */
+.has-tabbar .home-content {
+  padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
 }
 .home-loading {
   min-height: 100dvh;
@@ -222,13 +227,15 @@ body {
 /* La columna crece en pantallas grandes (en móvil sigue a pantalla completa). */
 @media (min-width: 640px) {
   .home-frame,
-  .mode-frame {
+  .mode-frame,
+  .tabbar {
     max-width: 540px;
   }
 }
 @media (min-width: 1024px) {
   .home-frame,
-  .mode-frame {
+  .mode-frame,
+  .tabbar {
     max-width: 600px;
   }
 }
@@ -320,4 +327,111 @@ body {
    del tiempo coincide con los 90° (carta de canto), donde el swap es invisible. */
 .flip-inner {
   transition-timing-function: ease-in-out;
+}
+
+/* ============================================================
+   Navegación tipo app (Fase A): tab bar inferior + cabecera de modo.
+   La tab bar se centra y limita al ancho de la columna (igual que los frames,
+   ver media queries de arriba). Respeta el safe-area inferior (iOS).
+   ============================================================ */
+.tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 460px;
+  z-index: 60;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: color-mix(in oklab, var(--bg-card) 90%, transparent);
+  backdrop-filter: saturate(1.3) blur(12px);
+  -webkit-backdrop-filter: saturate(1.3) blur(12px);
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.tabbar .tab {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 9px 4px 8px;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  transition: color 0.15s ease;
+}
+.tabbar .tab-glyph {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1;
+}
+.tabbar .tab-label {
+  font-size: 10px;
+  letter-spacing: 0.02em;
+}
+.tabbar .tab.active {
+  color: var(--accent);
+}
+
+/* Cabecera de modo de estudio / vista empujada: ← atrás · título · progreso. */
+.study-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 18px 6px;
+}
+.study-header .sh-back {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--ink);
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+.study-header .sh-back:hover {
+  border-color: var(--accent);
+}
+.study-header .sh-back:active {
+  transform: scale(0.93);
+}
+.study-header .sh-titles {
+  flex: 1;
+  min-width: 0;
+}
+.study-header .sh-title {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.study-header .sh-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+.study-header .sh-count {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink-3);
+  flex: none;
 }

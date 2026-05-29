@@ -1,7 +1,7 @@
 import type { Card } from '../../data/content'
 import type { Variant } from '../../theme/ThemeProvider'
 import { Backdrop } from '../Backdrop'
-import { Topbar } from '../Topbar'
+import { StudyHeader } from '../StudyHeader'
 
 export interface Answer {
   card: Card
@@ -66,7 +66,7 @@ export function SessionSummary({
     <div className="mode-frame proto">
       <Backdrop variant={variant} />
       <div className="mode-scroll">
-        <Topbar />
+        <StudyHeader title="Resumen" subtitle="まとめ" onBack={onHome} />
         <div className="summary-wrap">
           <div className="summary-eyebrow">{eyebrow}</div>
           <h2 className="summary-title">

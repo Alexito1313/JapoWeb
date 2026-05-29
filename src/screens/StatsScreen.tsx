@@ -5,7 +5,7 @@ import { useContent } from '../data/useContent'
 import { useProgress } from '../data/progress/ProgressContext'
 import { computeStats } from '../data/stats'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { StudyHeader } from '../components/StudyHeader'
 
 function downloadJSON(filename: string, json: string) {
   const blob = new Blob([json], { type: 'application/json' })
@@ -42,7 +42,7 @@ export function StatsScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
-        <Topbar active="stats" />
+        <StudyHeader title="Estadísticas" subtitle="統計" onBack={() => navigate(-1)} />
 
         <div className="stats-wrap">
           <div className="stats-eyebrow">Estadísticas · 統計</div>

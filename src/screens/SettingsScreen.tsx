@@ -2,7 +2,7 @@ import { useRef, type ReactNode } from 'react'
 import { useTheme, type ThemePref } from '../theme/ThemeProvider'
 import { useProgress } from '../data/progress/ProgressContext'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { useNavigate } from 'react-router-dom'
 
 function downloadJSON(filename: string, json: string) {
   const blob = new Blob([json], { type: 'application/json' })
@@ -66,6 +66,7 @@ function ChipGroup({
 export function SettingsScreen() {
   const { variant, pref, setPref } = useTheme()
   const { snapshot, repo } = useProgress()
+  const navigate = useNavigate()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const cardsStudied = Object.keys(snapshot.cards).length
@@ -95,8 +96,6 @@ export function SettingsScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
-        <Topbar active="settings" />
-
         <div className="settings-wrap">
           <div className="settings-eyebrow">Ajustes · 設定</div>
           <h1 className="settings-title">
@@ -162,6 +161,15 @@ export function SettingsScreen() {
               <span className="jp-side">進捗</span>
             </h3>
             <div className="settings-card">
+              <SettingsRow
+                label="Estadísticas"
+                jp="統計"
+                control={
+                  <button className="setting-btn ghost" onClick={() => navigate('/stats')}>
+                    Ver
+                  </button>
+                }
+              />
               <SettingsRow label="Cartas estudiadas" control={<span className="setting-value">{cardsStudied}</span>} />
               <SettingsRow label="Repasos totales" control={<span className="setting-value">{totalViews}</span>} />
               <SettingsRow label="Días estudiando" control={<span className="setting-value">{daysStudying}</span>} />

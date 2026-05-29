@@ -11,7 +11,7 @@ import { useTheme } from '../theme/ThemeProvider'
 import { useDeck } from '../data/useDeck'
 import { useProgressRepo } from '../data/progress/ProgressContext'
 import { Backdrop } from '../components/Backdrop'
-import { Topbar } from '../components/Topbar'
+import { StudyHeader } from '../components/StudyHeader'
 import { ProgressMeta } from '../components/mode/ProgressMeta'
 import { StreakChip } from '../components/mode/StreakChip'
 import { SessionSummary, type Answer } from '../components/mode/SessionSummary'
@@ -204,7 +204,10 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
     <div className="mode-frame proto" style={SPEED_VARS as CSSProperties}>
       <Backdrop variant={variant} />
       <div className="mode-inner">
-        <Topbar />
+        <StudyHeader
+          title={mode === 'review' ? 'Repaso' : 'Flashcards'}
+          subtitle={mode === 'review' ? '復 · más falladas' : '札 · tarjetas'}
+        />
 
         {mode === 'review' && (
           <div className="review-banner">
