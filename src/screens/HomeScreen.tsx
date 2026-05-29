@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeProvider'
 import { useContent } from '../data/useContent'
+import { useProgress } from '../data/progress/ProgressContext'
+import { dayKey, DAY_MS } from '../data/progress/srs'
 import {
   KANJI_BLOCKS,
   VOCAB_BLOCKS,
@@ -43,11 +45,17 @@ function SectionTitle({ title, jp, toggle }: { title: string; jp?: string; toggl
   )
 }
 
-function StreakMini({ onOpenCalendar }: { onOpenCalendar: () => void }) {
-  // Sin progreso real todavía (llega en la Fase 3): hoy marcado, resto vacío.
-  const week = [0, 0, 0, 0, 0, 0, 2]
-  const days = 0
-  const completed = week.filter((d) => d === 1).length
+function StreakMini({
+  days,
+  week,
+  completed,
+  onOpenCalendar,
+}: {
+  days: number
+  week: number[]
+  completed: number
+  onOpenCalendar: () => void
+}) {
   return (
     <div className="streak-mini" onClick={onOpenCalendar} style={{ cursor: 'pointer' }}>
       <span className="pill">
@@ -259,6 +267,7 @@ function StartButton({ count, onStart }: { count: number; onStart: () => void })
 export function HomeScreen() {
   const { variant } = useTheme()
   const { content, loading } = useContent()
+  const { snapshot } = useProgress()
   const navigate = useNavigate()
   const go = (path: string) => navigate(path)
 
@@ -310,6 +319,17 @@ export function HomeScreen() {
     )
   }
 
+  // Racha real: últimos 7 días (hoy a la derecha), nº de días estudiados.
+  const streak = snapshot.streak
+  const week: number[] = []
+  let completedWeek = 0
+  for (let i = 6; i >= 0; i--) {
+    const k = dayKey(Date.now() - i * DAY_MS)
+    const studied = (streak.days[k] ?? 0) > 0
+    if (studied) completedWeek++
+    week.push(i === 0 ? 2 : studied ? 1 : 0)
+  }
+
   return (
     <div className="home-frame">
       <Backdrop variant={variant} />
@@ -327,7 +347,12 @@ export function HomeScreen() {
           </h1>
         </div>
 
-        <StreakMini onOpenCalendar={() => go('/calendar')} />
+        <StreakMini
+          days={streak.current}
+          week={week}
+          completed={completedWeek}
+          onOpenCalendar={() => go('/calendar')}
+        />
         {daily && (
           <DailyMini card={daily} onOpen={() => go(`/detail/${encodeURIComponent(daily.jp)}`)} />
         )}

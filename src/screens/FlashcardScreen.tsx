@@ -9,6 +9,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeProvider'
 import { useDeck } from '../data/useDeck'
+import { useProgressRepo } from '../data/progress/ProgressContext'
 import { Backdrop } from '../components/Backdrop'
 import { Topbar } from '../components/Topbar'
 import { ProgressMeta } from '../components/mode/ProgressMeta'
@@ -27,6 +28,7 @@ type Feedback = 'good' | 'bad' | null
 export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' }) {
   const { variant } = useTheme()
   const navigate = useNavigate()
+  const repo = useProgressRepo()
   const { deck, loading } = useDeck(mode)
   const total = deck.length
 
@@ -59,6 +61,7 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
       if (correct && nextStreak >= 3) setStreakFlash({ value: nextStreak, key: Date.now() })
 
       const justAnswered = deck[index % total]
+      repo.recordAnswer(justAnswered.jp, correct)
       const nextAnsweredLen = answered.length + 1
       setAnswered((a) => [...a, { card: justAnswered, correct }])
 
@@ -76,7 +79,7 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
         }
       }, 420)
     },
-    [streak, total, index, answered.length, deck, TOTAL_SESSION],
+    [streak, total, index, answered.length, deck, TOTAL_SESSION, repo],
   )
 
   const resetSession = useCallback(() => {

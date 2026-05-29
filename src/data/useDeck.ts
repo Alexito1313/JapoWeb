@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useContent } from './useContent'
 import { buildDeck, reviewDeck, type Selection } from './deck'
 import type { Card } from './content'
+import { useProgressRepo } from './progress/ProgressContext'
 
 /**
  * Obtiene el mazo para un modo, usando la selección que llega por router state.
@@ -19,15 +20,22 @@ export function useDeck(mode: 'study' | 'review' = 'study'): {
   const location = useLocation()
   const selection = (location.state as { selection?: Selection } | null)?.selection
   const selKey = JSON.stringify(selection ?? null)
+  const repo = useProgressRepo()
 
   const [deck, setDeck] = useState<Card[]>([])
 
   useEffect(() => {
     if (!content) return
-    setDeck(mode === 'review' ? reviewDeck(content) : buildDeck(content, selection))
+    // El progreso se lee imperativamente (getSnapshot) para congelar el mazo al
+    // inicio de la sesión y no re-barajar al registrar respuestas.
+    setDeck(
+      mode === 'review'
+        ? reviewDeck(content, repo.getSnapshot().cards)
+        : buildDeck(content, selection),
+    )
     // selection se serializa en selKey para comparar por valor
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content, mode, selKey])
+  }, [content, mode, selKey, repo])
 
   return { deck, loading }
 }

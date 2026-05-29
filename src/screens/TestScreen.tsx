@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeProvider'
 import { useDeck } from '../data/useDeck'
+import { useProgressRepo } from '../data/progress/ProgressContext'
 import type { Card } from '../data/content'
 import { Backdrop } from '../components/Backdrop'
 import { Topbar } from '../components/Topbar'
@@ -42,6 +43,7 @@ function buildOptions(current: Card, deck: Card[], seed: number): Option[] {
 export function TestScreen() {
   const { variant } = useTheme()
   const navigate = useNavigate()
+  const repo = useProgressRepo()
   const { deck, loading } = useDeck('study')
   const total = deck.length
 
@@ -85,6 +87,7 @@ export function TestScreen() {
       if (selected !== null || transitioning || finished || !card) return
       setSelected(idx)
       const correct = idx === correctIdx
+      repo.recordAnswer(card.jp, correct)
       setStats((s) => (correct ? { ...s, right: s.right + 1 } : { ...s, wrong: s.wrong + 1 }))
       const nextStreak = correct ? streak + 1 : 0
       setStreak(nextStreak)
@@ -95,7 +98,7 @@ export function TestScreen() {
       }
       setAnswered((a) => [...a, { card, correct }])
     },
-    [selected, transitioning, finished, correctIdx, streak, card],
+    [selected, transitioning, finished, correctIdx, streak, card, repo],
   )
 
   const resetSession = useCallback(() => {

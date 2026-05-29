@@ -1,4 +1,5 @@
 import type { Card, Content } from './content'
+import type { CardProgress } from './progress/types'
 
 /** Selección de estudio que viaja desde Home a los modos (via router state). */
 export interface Selection {
@@ -35,9 +36,18 @@ export function buildDeck(content: Content, selection?: Selection): Card[] {
 }
 
 /**
- * Mazo de repaso. Placeholder hasta la Fase 3 (SRS): primeros n kanji.
- * En producción se ordenará por nº de fallos del progreso real.
+ * Mazo de repaso: kanji peor llevados primero (más fallos, desempate por
+ * próximo repaso SRS). Si aún no hay datos de progreso, cae a los primeros n.
  */
-export function reviewDeck(content: Content, n = 8): Card[] {
-  return content.kanji.slice(0, n)
+export function reviewDeck(
+  content: Content,
+  progress: Record<string, CardProgress>,
+  n = 12,
+): Card[] {
+  const failed = content.kanji
+    .map((c) => ({ c, p: progress[c.jp] }))
+    .filter((x) => x.p && x.p.wrong > 0)
+    .sort((a, b) => b.p!.wrong - a.p!.wrong || a.p!.due - b.p!.due)
+    .map((x) => x.c)
+  return failed.length ? failed.slice(0, n) : content.kanji.slice(0, n)
 }
