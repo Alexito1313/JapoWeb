@@ -380,7 +380,8 @@ export function WriteScreen() {
           <div className="write-prompt-read">{card.read}</div>
         </div>
 
-        <AutoStage key={'auto-' + card.jp + variant} card={card} variant={variant} guideHint onGrade={grade} />
+        {/* Guía desactivada por defecto; el usuario la activa con el botón "Guía". */}
+        <AutoStage key={'auto-' + card.jp + variant} card={card} variant={variant} guideHint={false} onGrade={grade} />
       </div>
     </div>
   )
