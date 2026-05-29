@@ -8,7 +8,7 @@ import { DAY_MS, dayKey, nextSRS } from './srs'
 
 const KEY = 'japoweb.progress'
 const VERSION = 1
-const DEFAULT_SETTINGS: Settings = { cardsPerSession: 20 }
+const DEFAULT_SETTINGS: Settings = { cardsPerSession: 20, level: 'J3' }
 
 function emptySnapshot(): ProgressSnapshot {
   return {

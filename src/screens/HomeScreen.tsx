@@ -13,6 +13,7 @@ import {
 } from '../data/content'
 import type { Selection } from '../data/deck'
 import { Backdrop } from '../components/Backdrop'
+import { LevelChip } from '../components/LevelChip'
 
 type ContentSel = 'kanji' | 'vocab' | 'both'
 
@@ -100,44 +101,6 @@ function DailyMini({ card, onOpen }: { card: Card; onOpen: () => void }) {
       </div>
       <div className="mini-arrow">→</div>
     </button>
-  )
-}
-
-function LevelSelector({
-  active,
-  onSelect,
-}: {
-  active: string | null
-  onSelect: (id: string) => void
-}) {
-  const levels = [
-    { id: 'J1', sub: '1º año', locked: true },
-    { id: 'J2', sub: '2º año', locked: true },
-    { id: 'J3', sub: '3º año', locked: false },
-    { id: 'J4', sub: '4º año', locked: true },
-    { id: 'J5', sub: '5º año', locked: true },
-    { id: 'J6', sub: '6º año', locked: true },
-    { id: 'J7', sub: '7º año', locked: true },
-  ]
-  return (
-    <div className="levels">
-      {levels.map((l) => {
-        let cls = 'level'
-        if (l.id === active) cls += ' active'
-        else if (l.locked) cls += ' locked'
-        return (
-          <button
-            key={l.id}
-            className={cls}
-            disabled={l.locked}
-            onClick={() => !l.locked && onSelect(l.id)}
-          >
-            <span className="l-id">{l.id}</span>
-            <span className="l-sub">{l.sub}</span>
-          </button>
-        )
-      })}
-    </div>
   )
 }
 
@@ -300,18 +263,18 @@ function StartButton({ count, onStart }: { count: number; onStart: () => void })
 /* ---------- pantalla principal ---------- */
 
 export function HomeScreen() {
-  const { variant } = useTheme()
+  const { variant, setPref } = useTheme()
   const { content, loading } = useContent()
   const { snapshot } = useProgress()
   const navigate = useNavigate()
   const go = (path: string) => navigate(path)
 
-  const [levelSel, setLevelSel] = useState<string | null>(null)
   const [contentSel, setContentSel] = useState<ContentSel | null>(null)
   const [typeSel, setTypeSel] = useState('all')
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set())
 
   const greet = useMemo(() => greeting(), [])
+  const level = snapshot.settings.level ?? 'J3' // nivel activo (lo gobierna el chip)
   const kanjiCounts = useMemo(() => (content ? countByBlock(content.kanji) : {}), [content])
   const vocabCounts = useMemo(() => (content ? countByBlock(content.vocab) : {}), [content])
 
@@ -365,13 +328,6 @@ export function HomeScreen() {
     [content],
   )
 
-  const selectLevel = (id: string) => {
-    setLevelSel(id)
-    // cambiar de nivel reinicia lo de abajo (la cascada se recalcula)
-    setContentSel(null)
-    setSelectedBlocks(new Set())
-    setTypeSel('all')
-  }
   const changeContent = (c: ContentSel) => {
     setContentSel(c)
     setSelectedBlocks(new Set()) // los bloques cambian según el contenido
@@ -385,9 +341,8 @@ export function HomeScreen() {
       return n
     })
 
-  // Cascada: cada paso aparece cuando el anterior está elegido.
-  const showContent = levelSel !== null
-  const showBlocks = showContent && contentSel !== null
+  // Cascada: el nivel ya vive en el chip → la home arranca en Contenido.
+  const showBlocks = contentSel !== null
   const showStudy = showBlocks && selectedBlocks.size > 0
 
   if (loading || !content) {
@@ -413,6 +368,17 @@ export function HomeScreen() {
     <div className="home-frame">
       <Backdrop variant={variant} />
       <div className="home-content">
+        <div className="home-header">
+          <LevelChip />
+          <button
+            className="home-theme-toggle"
+            onClick={() => setPref(variant === 'b' ? 'light' : 'dark')}
+            aria-label="Cambiar tema"
+          >
+            {variant === 'b' ? '☀' : '☾'}
+          </button>
+        </div>
+
         <div className="greet-wrap">
           <div className="greet-eyebrow">
             <span className="dot"></span>
@@ -434,21 +400,14 @@ export function HomeScreen() {
           <DailyMini card={daily} onOpen={() => go(`/detail/${encodeURIComponent(daily.jp)}`)} />
         )}
 
-        <SectionTitle title="Nivel" jp="級" toggle={levelSel ? `${levelSel} activo` : 'elige nivel'} />
-        <LevelSelector active={levelSel} onSelect={selectLevel} />
-
-        {showContent && (
-          <div className="reveal">
-            <SectionTitle title="Contenido" jp="教材" />
-            <ContentChips active={contentSel} onSelect={changeContent} />
-          </div>
-        )}
+        <SectionTitle title="Contenido" jp="教材" />
+        <ContentChips active={contentSel} onSelect={changeContent} />
 
         {showBlocks && (
           <div className="reveal">
             <SectionTitle
               title="Bloques"
-              jp={contentSel === 'vocab' ? 'MNN · L26—L36' : 'J3 · D1—D10'}
+              jp={contentSel === 'vocab' ? 'MNN · L26—L36' : `${level} · D1—D10`}
               toggle={blockTotal ? `${blockTotal} cartas` : 'elige bloques'}
             />
             <BlockGrid

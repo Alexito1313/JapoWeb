@@ -32,6 +32,8 @@ export interface StreakState {
 
 export interface Settings {
   cardsPerSession: number
+  /** Nivel/curso activo (contexto del usuario): 'J3'… Persiste entre sesiones. */
+  level: string
 }
 
 export interface ProgressSnapshot {
