@@ -883,3 +883,281 @@ body {
   font-size: 13px;
   line-height: 1.7;
 }
+
+/* Míos — banner, formulario de alta y lista de entradas propias */
+.mios-banner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: color-mix(in oklab, var(--gold, #c9a227) 14%, var(--bg-card));
+  border: 1px solid color-mix(in oklab, var(--gold, #c9a227) 40%, var(--border));
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin-bottom: 12px;
+}
+.mios-banner .mb-glyph {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--gold, #c9a227);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mios-add-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  border: 1px dashed var(--accent);
+  background: color-mix(in oklab, var(--accent) 6%, var(--bg-card));
+  color: var(--accent);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: background 0.15s ease;
+}
+.mios-add-btn:active {
+  transform: scale(0.99);
+}
+
+/* Formulario */
+.mios-form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.mf-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 4px;
+}
+.mf-seg-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  padding: 8px 4px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.mf-seg-btn.on {
+  background: var(--accent);
+  color: #fff;
+}
+.mf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.mf-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.mf-input {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+.mf-input:focus {
+  border-color: var(--accent);
+}
+.mf-textarea {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.mf-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mf-tag {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink-2);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.mf-tag.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: color-mix(in oklab, var(--accent) 8%, var(--bg-card));
+}
+.mf-functions {
+  font-size: 12px;
+  color: var(--ink-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mf-functions b {
+  color: var(--ink);
+}
+.mf-fn-ico {
+  font-size: 13px;
+}
+.mf-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 8px;
+  margin-top: 2px;
+}
+.mf-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 11px;
+  padding: 12px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.mf-btn.ghost {
+  background: var(--bg);
+  color: var(--ink-2);
+}
+.mf-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.mf-btn.primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Lista de entradas propias */
+.mios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.mios-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.mios-row-main {
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  text-align: left;
+}
+.mios-row-main .mr-jp {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--ink);
+  line-height: 1;
+  flex: none;
+}
+.mios-row-main .mr-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.mios-row-main .mr-mean {
+  font-size: 14px;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mios-row-main .mr-read {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.mios-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 8px;
+}
+.mr-write,
+.mr-del {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.mr-write {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--accent);
+}
+.mr-write.disabled {
+  color: var(--ink-3);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.mr-del {
+  font-size: 18px;
+  color: var(--ink-3);
+  line-height: 1;
+}

@@ -6,6 +6,7 @@ import { useProgress } from '../data/progress/ProgressContext'
 import { Backdrop } from '../components/Backdrop'
 import { HIRAGANA, KATAKANA, type KanaGrid } from '../data/kana'
 import { KANJI_BLOCKS, type Card, type Content } from '../data/content'
+import { MiosTab } from '../components/mios/MiosTab'
 
 type SubTab = 'hiragana' | 'katakana' | 'kanji' | 'mios'
 
@@ -114,18 +115,6 @@ function KanjiIndex({
   )
 }
 
-function MiosPlaceholder() {
-  return (
-    <div className="mios-empty">
-      <div className="mios-glyph">自</div>
-      <p>
-        Aquí podrás añadir <b>tus propios kanji y palabras</b> con etiquetas y ejemplos. 準備中 ·
-        llega en la próxima fase.
-      </p>
-    </div>
-  )
-}
-
 /** Pestaña "Tablas": silabarios practicables + índice de kanji + Míos. */
 export function TablasScreen() {
   const { variant } = useTheme()
@@ -176,7 +165,7 @@ export function TablasScreen() {
             <KanaTableView grids={KATAKANA} system="Katakana" onTrace={traceKana} />
           )}
           {tab === 'kanji' && <KanjiIndex content={content} level={level} onOpen={openKanji} />}
-          {tab === 'mios' && <MiosPlaceholder />}
+          {tab === 'mios' && <MiosTab />}
         </div>
       </div>
     </div>

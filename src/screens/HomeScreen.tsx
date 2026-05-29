@@ -178,9 +178,9 @@ function BlockGrid({
           className={'block ' + (isSelected(b.id) ? 'active' : '')}
           onClick={() => onToggle(b.id)}
         >
-          <span className="b-id">{b.id}</span>
+          <span className="b-id">{b.id === 'MIOS' ? '自' : b.id}</span>
           <span className="b-count">
-            {b.count} {b.id[0] === 'D' ? 'kanji' : 'palabras'}
+            {b.count} {b.id === 'MIOS' ? 'propias' : b.id[0] === 'D' ? 'kanji' : 'palabras'}
           </span>
         </button>
       ))}
@@ -267,6 +267,11 @@ export function HomeScreen() {
     if (!contentSel) return out
     if (contentSel !== 'vocab') KANJI_BLOCKS.forEach((b) => out.push({ id: b, count: kanjiCounts[b] ?? 0 }))
     if (contentSel !== 'kanji') VOCAB_BLOCKS.forEach((b) => out.push({ id: b, count: vocabCounts[b] ?? 0 }))
+    // Bloque "Míos" (contenido propio, block 'MIOS') si hay entradas del tipo elegido.
+    const miosCount =
+      (contentSel !== 'vocab' ? kanjiCounts['MIOS'] ?? 0 : 0) +
+      (contentSel !== 'kanji' ? vocabCounts['MIOS'] ?? 0 : 0)
+    if (miosCount > 0) out.push({ id: 'MIOS', count: miosCount })
     return out
   }, [contentSel, kanjiCounts, vocabCounts])
 

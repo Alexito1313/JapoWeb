@@ -1,20 +1,43 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { loadContent, type Content } from './content'
+import { customToCard, useCustom } from './custom/customStore'
 
-/** Carga el contenido una vez (cacheado en content.ts) y expone estado de carga. */
+/**
+ * Carga el contenido base (cacheado en content.ts) y le FUSIONA el contenido
+ * propio del usuario ("Míos", block 'MIOS'). Así el detalle y los mazos tratan
+ * las entradas propias como una fuente más, sin tocar las pantallas.
+ * Reactivo a los cambios en el contenido propio.
+ */
 export function useContent() {
-  const [content, setContent] = useState<Content | null>(null)
+  const [base, setBase] = useState<Content | null>(null)
   const [error, setError] = useState<Error | null>(null)
+  const { entries } = useCustom()
 
   useEffect(() => {
     let alive = true
     loadContent()
-      .then((c) => alive && setContent(c))
+      .then((c) => alive && setBase(c))
       .catch((e) => alive && setError(e instanceof Error ? e : new Error(String(e))))
     return () => {
       alive = false
     }
   }, [])
+
+  const content = useMemo<Content | null>(() => {
+    if (!base) return null
+    if (!entries.length) return base
+    const cKanji = entries.filter((e) => e.kind === 'kanji').map(customToCard)
+    const cVocab = entries.filter((e) => e.kind === 'vocab').map(customToCard)
+    if (!cKanji.length && !cVocab.length) return base
+    const kanji = [...base.kanji, ...cKanji]
+    const vocab = [...base.vocab, ...cVocab]
+    return {
+      kanji,
+      vocab,
+      all: [...kanji, ...vocab],
+      writable: kanji.filter((k) => [...k.jp].length === 1),
+    }
+  }, [base, entries])
 
   return { content, error, loading: !content && !error }
 }
