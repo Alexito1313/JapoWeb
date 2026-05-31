@@ -34,6 +34,13 @@ export interface Settings {
   cardsPerSession: number
   /** Nivel/curso activo (contexto del usuario): 'J3'… Persiste entre sesiones. */
   level: string
+  /** Última sesión de estudio iniciada (para la tarjeta "Continuar"). */
+  lastSession?: {
+    path: string
+    content: 'kanji' | 'vocab' | 'both'
+    blocks: string[]
+    type?: string
+  }
 }
 
 export interface ProgressSnapshot {

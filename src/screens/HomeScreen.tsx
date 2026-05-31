@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeProvider'
 import { useContent } from '../data/useContent'
 import { useProgress } from '../data/progress/ProgressContext'
+import type { ProgressSnapshot } from '../data/progress/types'
 import { dayKey, DAY_MS } from '../data/progress/srs'
 import {
   KANJI_BLOCKS,
@@ -10,6 +11,7 @@ import {
   countByBlock,
   dailyIndex,
   type Card,
+  type Content,
 } from '../data/content'
 import type { Selection } from '../data/deck'
 import { Backdrop } from '../components/Backdrop'
@@ -58,50 +60,70 @@ function SectionTitle({ title, jp, toggle }: { title: string; jp?: string; toggl
   )
 }
 
-function StreakMini({
-  days,
-  week,
-  completed,
-  onOpenCalendar,
-}: {
-  days: number
-  week: number[]
-  completed: number
-  onOpenCalendar: () => void
-}) {
-  return (
-    <div className="streak-mini" onClick={onOpenCalendar} style={{ cursor: 'pointer' }}>
-      <span className="pill">
-        <span className="n">{days}</span>
-        <span className="lbl">días · racha</span>
-      </span>
-      <span className="sep"></span>
-      <span className="pill" style={{ gap: 8 }}>
-        <span className="dots">
-          {week.map((d, i) => (
-            <span key={i} className={'dot ' + (d === 1 ? 'done' : d === 2 ? 'today' : '')}></span>
-          ))}
-        </span>
-        <span className="lbl">{completed}/7 semana</span>
-      </span>
-    </div>
-  )
+const MODE_LABEL: Record<string, string> = {
+  '/flash': 'Flashcards',
+  '/test': 'Test',
+  '/repaso': 'Repaso',
+  '/escritura': 'Escritura',
+  '/simulacro': 'Simulacro',
 }
 
-function DailyMini({ card, onOpen }: { card: Card; onOpen: () => void }) {
-  return (
-    <button className="daily-mini" onClick={onOpen}>
-      <div className="mini-kanji">{card.jp}</div>
-      <div className="mini-info">
-        <div className="mini-eyebrow">Kanji del día · 今日</div>
-        <div className="mini-meaning">{card.mean}</div>
-        <div className="mini-reading">
-          {card.read} · {card.block}
-        </div>
-      </div>
-      <div className="mini-arrow">→</div>
-    </button>
-  )
+interface ContInfo {
+  title: string
+  glyph: string
+  modeLabel: string
+  pending: number
+  pct: number
+  path: string
+  selection: Selection
+}
+
+/** Tarjeta "Continuar": última sesión guardada o, si no hay, el primer bloque
+    de kanji en curso (o sin empezar) del temario. */
+function continuarInfo(content: Content, snapshot: ProgressSnapshot): ContInfo | null {
+  const last = snapshot.settings.lastSession
+  let path = '/flash'
+  let contentKind: 'kanji' | 'vocab' | 'both' = 'kanji'
+  let block = ''
+  let type: string | undefined
+
+  if (last && last.blocks.length) {
+    path = last.path || '/flash'
+    contentKind = last.content
+    block = last.blocks[0]
+    type = last.type
+  } else {
+    for (const b of KANJI_BLOCKS) {
+      const cs = content.kanji.filter((c) => c.block === b)
+      if (!cs.length) continue
+      const done = cs.filter((c) => (snapshot.cards[c.jp]?.views ?? 0) > 0).length
+      if (done > 0 && done < cs.length) {
+        block = b
+        break
+      }
+      if (done === 0 && !block) block = b
+    }
+    if (!block) block = KANJI_BLOCKS[0]
+  }
+
+  const cards = content.all.filter((c) => c.block === block)
+  if (!cards.length) return null
+  const done = cards.filter((c) => (snapshot.cards[c.jp]?.views ?? 0) > 0).length
+  const pending = cards.length - done
+  const pct = cards.length ? Math.round((done / cards.length) * 100) : 0
+  const glyph = (cards.find((c) => (snapshot.cards[c.jp]?.views ?? 0) === 0) ?? cards[0]).jp
+  const title =
+    block === 'MIOS' ? 'Míos' : block.startsWith('L') ? `Lección ${block}` : `Bloque ${block}`
+
+  return {
+    title,
+    glyph,
+    modeLabel: MODE_LABEL[path] ?? 'Flashcards',
+    pending,
+    pct,
+    path,
+    selection: { content: contentKind, blocks: [block], type },
+  }
 }
 
 function ContentChips({
@@ -249,7 +271,7 @@ function ModeTiles({ go, content }: { go: (path: string) => void; content: Conte
 export function HomeScreen() {
   const { variant } = useTheme()
   const { content, loading } = useContent()
-  const { snapshot } = useProgress()
+  const { snapshot, repo } = useProgress()
   const navigate = useNavigate()
   const go = (path: string) => navigate(path)
 
@@ -309,6 +331,14 @@ export function HomeScreen() {
   }
   const goStudy = (path: string) => {
     if (!contentSel || selectedBlocks.size === 0) return
+    repo.setSettings({
+      lastSession: {
+        path,
+        content: selection.content,
+        blocks: selection.blocks,
+        type: selection.type,
+      },
+    })
     navigate(path, { state: { selection } })
   }
 
@@ -353,6 +383,8 @@ export function HomeScreen() {
     week.push(i === 0 ? 2 : studied ? 1 : 0)
   }
 
+  const cont = continuarInfo(content, snapshot)
+
   return (
     <div className="home-frame">
       <Backdrop variant={variant} />
@@ -377,26 +409,40 @@ export function HomeScreen() {
           </button>
         </div>
 
-        <div className="greet-wrap">
-          <div className="greet-eyebrow">
-            <span className="dot"></span>
-            <span className="meta">{greet.meta}</span>
+        <div className="chome-headrow">
+          <div className="chome-headl">
+            <div className="greet-eyebrow">
+              <span className="dot"></span>
+              <span className="meta">{greet.meta}</span>
+            </div>
+            <h1 className="greet-title chome-h1">{greet.text}</h1>
+            <button
+              className="chome-week"
+              onClick={() => go('/calendar')}
+              aria-label="Ver calendario"
+            >
+              <span className="cw-dots">
+                {week.map((d, i) => (
+                  <span key={i} className={'cwd ' + (d === 1 ? 'done' : d === 2 ? 'today' : '')}></span>
+                ))}
+              </span>
+              <span className="cw-lbl">
+                <b>{streak.current}</b> días de racha · {completedWeek}/7 semana
+              </span>
+            </button>
           </div>
-          <h1 className="greet-title">
-            {greet.text}
-            <span className="jp-sub">{greet.jpSub} — sigamos donde lo dejaste</span>
-          </h1>
+          {daily && (
+            <button
+              className="chome-daily"
+              onClick={() => go(`/detail/${encodeURIComponent(daily.jp)}`)}
+              aria-label="Kanji del día"
+            >
+              <span className="cd-eyebrow">今日</span>
+              <span className="cd-kanji">{daily.jp}</span>
+              <span className="cd-mean">{daily.mean.split(/[,，]/)[0].trim()}</span>
+            </button>
+          )}
         </div>
-
-        <StreakMini
-          days={streak.current}
-          week={week}
-          completed={completedWeek}
-          onOpenCalendar={() => go('/calendar')}
-        />
-        {daily && (
-          <DailyMini card={daily} onOpen={() => go(`/detail/${encodeURIComponent(daily.jp)}`)} />
-        )}
 
         <SectionTitle title="Contenido" jp="教材" />
         <ContentChips active={contentSel} onSelect={changeContent} />
@@ -434,6 +480,29 @@ export function HomeScreen() {
             <SectionTitle title="Modo de estudio" jp="学習方法" />
             <ModeTiles go={goStudy} content={contentSel} />
           </div>
+        )}
+
+        {cont && (
+          <button
+            className="continuar"
+            onClick={() => navigate(cont.path, { state: { selection: cont.selection } })}
+          >
+            <span className="cont-k">{cont.glyph}</span>
+            <span className="cont-body">
+              <span className="cont-eyebrow">CONTINUAR · 続き</span>
+              <span className="cont-title">{cont.title}</span>
+              <span className="cont-sub">
+                {cont.modeLabel} ·{' '}
+                {cont.pending > 0
+                  ? `${cont.pending} ${cont.pending === 1 ? 'carta pendiente' : 'cartas pendientes'}`
+                  : 'repasar bloque'}
+              </span>
+              <span className="cont-prog">
+                <span className="cont-prog-bar" style={{ width: cont.pct + '%' }}></span>
+              </span>
+            </span>
+            <span className="cont-go">→</span>
+          </button>
         )}
       </div>
     </div>
