@@ -39,7 +39,7 @@ export interface Settings {
     path: string
     content: 'kanji' | 'vocab' | 'both'
     blocks: string[]
-    type?: string
+    types?: string[]
   }
 }
 

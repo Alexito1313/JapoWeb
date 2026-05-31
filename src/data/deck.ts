@@ -5,8 +5,8 @@ import type { CardProgress } from './progress/types'
 export interface Selection {
   content: 'kanji' | 'vocab' | 'both'
   blocks: string[]
-  /** Tipo gramatical para filtrar el vocab (verbo, sustantivo…); ausente = todos. */
-  type?: string
+  /** Tipos gramaticales para filtrar el vocab (verbo, sustantivo…); vacío/ausente = todos. */
+  types?: string[]
 }
 
 /** Baraja (Fisher-Yates) con semilla opcional para reproducibilidad. */
@@ -34,7 +34,8 @@ export function buildDeck(content: Content, selection?: Selection): Card[] {
       ? want.filter((c) => selection.blocks.includes(c.block))
       : want
     // Filtro por tipo gramatical (solo afecta al vocab; el kanji es type 'kanji').
-    if (selection.type) pool = pool.filter((c) => c.type === selection.type)
+    if (selection.types && selection.types.length)
+      pool = pool.filter((c) => selection.types!.includes(c.type))
   }
   return shuffle(pool)
 }

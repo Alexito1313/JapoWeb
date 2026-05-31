@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../theme/ThemeProvider'
 import { useContent } from '../data/useContent'
@@ -47,7 +47,17 @@ function greeting(d = new Date()) {
 
 /* ---------- sub-componentes presentacionales ---------- */
 
-function SectionTitle({ title, jp, toggle }: { title: string; jp?: string; toggle?: string }) {
+function SectionTitle({
+  title,
+  jp,
+  toggle,
+  action,
+}: {
+  title: string
+  jp?: string
+  toggle?: string
+  action?: ReactNode
+}) {
   return (
     <div className="section-title">
       <h3>
@@ -55,7 +65,7 @@ function SectionTitle({ title, jp, toggle }: { title: string; jp?: string; toggl
         {title}
         {jp && <span className="jp-side">{jp}</span>}
       </h3>
-      {toggle && <span className="toggle">{toggle}</span>}
+      {action ? action : toggle ? <span className="toggle">{toggle}</span> : null}
     </div>
   )
 }
@@ -85,13 +95,13 @@ function continuarInfo(content: Content, snapshot: ProgressSnapshot): ContInfo |
   let path = '/flash'
   let contentKind: 'kanji' | 'vocab' | 'both' = 'kanji'
   let block = ''
-  let type: string | undefined
+  let types: string[] | undefined
 
   if (last && last.blocks.length) {
     path = last.path || '/flash'
     contentKind = last.content
     block = last.blocks[0]
-    type = last.type
+    types = last.types
   } else {
     for (const b of KANJI_BLOCKS) {
       const cs = content.kanji.filter((c) => c.block === b)
@@ -122,7 +132,7 @@ function continuarInfo(content: Content, snapshot: ProgressSnapshot): ContInfo |
     pending,
     pct,
     path,
-    selection: { content: contentKind, blocks: [block], type },
+    selection: { content: contentKind, blocks: [block], types },
   }
 }
 
@@ -156,29 +166,34 @@ function ContentChips({
 
 function TypeChips({
   types,
-  active,
-  onSelect,
+  selected,
+  onToggle,
+  onClear,
 }: {
   types: string[]
-  active: string
-  onSelect: (v: string) => void
+  selected: Set<string>
+  onToggle: (v: string) => void
+  onClear: () => void
 }) {
-  const items = [
-    { value: 'all', label: 'Todos', jp: '全部' },
-    ...types.map((t) => ({ value: t, ...(TYPE_LABELS[t] ?? { label: t, jp: '' }) })),
-  ]
   return (
     <div className="chips">
-      {items.map((i) => (
-        <button
-          key={i.value}
-          className={'chip ' + (active === i.value ? 'active' : '')}
-          onClick={() => onSelect(i.value)}
-        >
-          {i.label}
-          {i.jp && <span className="jp-tiny">{i.jp}</span>}
-        </button>
-      ))}
+      <button className={'chip ' + (selected.size === 0 ? 'active' : '')} onClick={onClear}>
+        Todos
+        <span className="jp-tiny">全部</span>
+      </button>
+      {types.map((t) => {
+        const lab = TYPE_LABELS[t] ?? { label: t, jp: '' }
+        return (
+          <button
+            key={t}
+            className={'chip ' + (selected.has(t) ? 'active' : '')}
+            onClick={() => onToggle(t)}
+          >
+            {lab.label}
+            {lab.jp && <span className="jp-tiny">{lab.jp}</span>}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -215,7 +230,7 @@ function ModeTiles({ go, content }: { go: (path: string) => void; content: Conte
   const showWrite = content !== 'vocab'
   return (
     <div className="modes">
-      <div className="mode primary" onClick={() => go('/flash')} style={{ cursor: 'pointer' }}>
+      <div className="mode" onClick={() => go('/flash')} style={{ cursor: 'pointer' }}>
         <div className="m-row">
           <span className="m-kanji">札</span>
           <span className="m-pill">RECOMENDADO</span>
@@ -276,7 +291,7 @@ export function HomeScreen() {
   const go = (path: string) => navigate(path)
 
   const [contentSel, setContentSel] = useState<ContentSel | null>(null)
-  const [typeSel, setTypeSel] = useState('all')
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set())
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set())
 
   const greet = useMemo(() => greeting(), [])
@@ -315,19 +330,19 @@ export function HomeScreen() {
     return [...ordered, ...extra]
   }, [contentSel, blockCards])
 
-  // Tipo efectivo: si el elegido ya no está disponible, equivale a "todos".
-  const effectiveType = typeSel !== 'all' && availableTypes.includes(typeSel) ? typeSel : 'all'
+  // Tipos efectivos: los elegidos que siguen disponibles (vacío = todos).
+  const effectiveTypes = new Set([...selectedTypes].filter((t) => availableTypes.includes(t)))
 
-  // Mazo final (con filtro de tipo) → para el botón Empezar y la selección.
+  // Mazo final (con filtro de tipo) → para la selección.
   const studyCards =
-    effectiveType === 'all' ? blockCards : blockCards.filter((c) => c.type === effectiveType)
+    effectiveTypes.size === 0 ? blockCards : blockCards.filter((c) => effectiveTypes.has(c.type))
   const blockTotal = blockCards.length
   const total = studyCards.length
 
   const selection: Selection = {
     content: contentSel ?? 'kanji',
     blocks: [...selectedBlocks],
-    type: effectiveType === 'all' ? undefined : effectiveType,
+    types: effectiveTypes.size ? [...effectiveTypes] : undefined,
   }
   const goStudy = (path: string) => {
     if (!contentSel || selectedBlocks.size === 0) return
@@ -336,7 +351,7 @@ export function HomeScreen() {
         path,
         content: selection.content,
         blocks: selection.blocks,
-        type: selection.type,
+        types: selection.types,
       },
     })
     navigate(path, { state: { selection } })
@@ -350,7 +365,7 @@ export function HomeScreen() {
   const changeContent = (c: ContentSel) => {
     setContentSel(c)
     setSelectedBlocks(new Set()) // los bloques cambian según el contenido
-    setTypeSel('all')
+    setSelectedTypes(new Set())
   }
   const toggleBlock = (id: string) =>
     setSelectedBlocks((prev) => {
@@ -359,6 +374,21 @@ export function HomeScreen() {
       else n.add(id)
       return n
     })
+  const toggleType = (t: string) =>
+    setSelectedTypes((prev) => {
+      const n = new Set(prev)
+      if (n.has(t)) n.delete(t)
+      else n.add(t)
+      return n
+    })
+  const clearTypes = () => setSelectedTypes(new Set())
+
+  // "Seleccionar/quitar todo" los bloques visibles del tipo elegido.
+  const allBlockIds = blocks.map((b) => b.id)
+  const allBlocksSelected =
+    allBlockIds.length > 0 && allBlockIds.every((id) => selectedBlocks.has(id))
+  const toggleAllBlocks = () =>
+    setSelectedBlocks(allBlocksSelected ? new Set() : new Set(allBlockIds))
 
   // Cascada: el nivel ya vive en el chip → la home arranca en Contenido.
   const showBlocks = contentSel !== null
@@ -452,7 +482,14 @@ export function HomeScreen() {
             <SectionTitle
               title="Bloques"
               jp={contentSel === 'vocab' ? 'MNN · L26—L36' : `${level} · D1—D10`}
-              toggle={blockTotal ? `${blockTotal} cartas` : 'elige bloques'}
+              action={
+                <div className="blk-action">
+                  {blockTotal > 0 && <span className="blk-count">{blockTotal} cartas</span>}
+                  <button className="sel-all-btn" onClick={toggleAllBlocks}>
+                    {allBlocksSelected ? 'Quitar todo' : 'Todo'}
+                  </button>
+                </div>
+              }
             />
             <BlockGrid
               blocks={blocks}
@@ -471,9 +508,14 @@ export function HomeScreen() {
                 <SectionTitle
                   title="Filtro por tipo"
                   jp="品詞"
-                  toggle={effectiveType === 'all' ? undefined : `${total} cartas`}
+                  toggle={effectiveTypes.size ? `${total} cartas` : undefined}
                 />
-                <TypeChips types={availableTypes} active={effectiveType} onSelect={setTypeSel} />
+                <TypeChips
+                  types={availableTypes}
+                  selected={effectiveTypes}
+                  onToggle={toggleType}
+                  onClear={clearTypes}
+                />
               </>
             )}
 
