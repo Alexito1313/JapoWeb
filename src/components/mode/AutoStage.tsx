@@ -50,8 +50,6 @@ export function AutoStage({
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
   const drawing = useRef(false)
   const curPts = useRef<{ x: number; y: number }[]>([])
-  const committed = useRef<Pt[][]>([]) // trazos validados: la tinta REAL del usuario (unidades 0-109)
-  const inkRef = useRef('#1B1A17')
 
   const accent = WRITE_PALETTE[variant].accent
 
@@ -65,7 +63,6 @@ export function AutoStage({
     setStatus('writing')
     setShowHint(false)
     mistakesOnStroke.current = 0
-    committed.current = []
     loadKvg(card.jp)
       .then((data) => {
         if (cancelled) return
@@ -90,22 +87,10 @@ export function AutoStage({
     if (!cv || !ctx) return
     const rect = cv.getBoundingClientRect()
     ctx.clearRect(0, 0, rect.width, rect.height)
+    ctx.strokeStyle = accent
     ctx.lineWidth = 12
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
-    // Trazos ya validados: la TINTA REAL del usuario (entera), encima del oficial tenue.
-    const sx = rect.width / 109
-    const sy = rect.height / 109
-    ctx.strokeStyle = inkRef.current
-    for (const st of committed.current) {
-      if (!st.length) continue
-      ctx.beginPath()
-      ctx.moveTo(st[0][0] * sx, st[0][1] * sy)
-      for (const [ux, uy] of st) ctx.lineTo(ux * sx, uy * sy)
-      ctx.stroke()
-    }
-    // Trazo en curso (color acento mientras lo dibujas).
-    ctx.strokeStyle = accent
     const s = curPts.current
     if (s.length > 0) {
       ctx.beginPath()
@@ -126,8 +111,6 @@ export function AutoStage({
     if (!ctx) return
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctxRef.current = ctx
-    inkRef.current =
-      getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || inkRef.current
     redrawCanvas()
   }, [redrawCanvas])
 
@@ -166,7 +149,6 @@ export function AutoStage({
     const userUnits = curPts.current.map(toUnits)
     const expected = expSamples.current[doneCount]
     const ok = expected ? matchStroke(userUnits, expected) : false
-    if (ok) committed.current = [...committed.current, userUnits] // conservar la tinta entera del trazo válido
     curPts.current = []
     redrawCanvas()
     if (ok) {
@@ -191,7 +173,6 @@ export function AutoStage({
     setStatus('writing')
     setShowHint(false)
     mistakesOnStroke.current = 0
-    committed.current = []
     curPts.current = []
     redrawCanvas()
   }, [redrawCanvas])
@@ -245,10 +226,12 @@ export function AutoStage({
               <line x1="54.5" y1="6" x2="54.5" y2="103" />
               <line x1="6" y1="54.5" x2="103" y2="54.5" />
             </g>
-            {/* Guía = plantilla COMPLETA y constante del kanji (todos los trazos),
-                no por "hechos/restantes" → no aparece ni desaparece de golpe. La
-                tinta del usuario se dibuja entera encima, en el lienzo. */}
+            {/* Guía = plantilla COMPLETA y constante (todos los trazos, no se
+                encoge). Los trazos ya validados se "rellenan" en sólido (oficial). */}
             {guideOn && paths.map((d, i) => <path key={'g' + i} className="kvg-guide-stroke" d={d} />)}
+            {paths.slice(0, doneCount).map((d, i) => (
+              <path key={'d' + i} className="kvg-done-stroke" d={d} />
+            ))}
             {showHint && paths[doneCount] && (
               <path
                 key={'h' + hintKey}

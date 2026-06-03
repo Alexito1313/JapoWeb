@@ -241,12 +241,12 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* Trazo oficial ya hecho: ahora TENUE de fondo (referencia); la tinta del
-   usuario se dibuja entera encima, en el lienzo. */
+/* Trazo ya validado: se rellena en SÓLIDO con la forma oficial (el trazo se
+   adapta al oficial). La guía constante queda debajo como plantilla. */
 .kvg-done-stroke {
   fill: none;
-  stroke: color-mix(in oklab, var(--ink-3) 42%, transparent);
-  stroke-width: 4;
+  stroke: var(--ink);
+  stroke-width: 5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
