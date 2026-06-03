@@ -112,24 +112,29 @@ export function matchStroke(userPts: Pt[], expPts: Pt[]): boolean {
   const us = resample(userPts, N)
   const elen = polylen(es)
   const ulen = polylen(us)
-  // trazo corto / punto: basta con que el centro esté cerca
+  // trazo corto / punto: el centro debe quedar cerca y no ser un trazo largo
   if (elen < 11) {
+    if (ulen > 26) return false // un barrido largo no vale como punto
     const um = us[Math.floor(N / 2)]
     const em = es[Math.floor(N / 2)]
-    return Math.hypot(um[0] - em[0], um[1] - em[1]) < 19
+    return Math.hypot(um[0] - em[0], um[1] - em[1]) < 13
   }
-  if (ulen < 6) return false
+  if (ulen < 8) return false
+  // longitud comparable: ni un toque ni un barrido gigante
+  if (ulen < elen * 0.5 || ulen > elen * 2.0) return false
   const uv = [us[N - 1][0] - us[0][0], us[N - 1][1] - us[0][1]]
   const ev = [es[N - 1][0] - es[0][0], es[N - 1][1] - es[0][1]]
   const ul = Math.hypot(uv[0], uv[1]) || 1
   const el = Math.hypot(ev[0], ev[1]) || 1
   const cos = (uv[0] * ev[0] + uv[1] * ev[1]) / (ul * el)
-  if (cos < 0.1) return false // dirección equivocada (orden inverso)
+  if (cos < 0.5) return false // dirección global dentro de ~60°
+  // distancia media + inicio + fin deben quedar cerca del trazo esperado
   let d = 0
   for (let i = 0; i < N; i++) d += Math.hypot(us[i][0] - es[i][0], us[i][1] - es[i][1])
   d /= N
   const startD = Math.hypot(us[0][0] - es[0][0], us[0][1] - es[0][1])
-  return d < 21 && startD < 32
+  const endD = Math.hypot(us[N - 1][0] - es[N - 1][0], us[N - 1][1] - es[N - 1][1])
+  return d < 15 && startD < 24 && endD < 26
 }
 
 export function kvgCodepoint(ch: string): string {
