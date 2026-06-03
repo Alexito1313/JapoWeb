@@ -242,10 +242,12 @@
   stroke-linejoin: round;
   opacity: 0.5;
 }
+/* Trazo oficial ya hecho: ahora TENUE de fondo (referencia); la tinta del
+   usuario se dibuja entera encima, en el lienzo. */
 .kvg-done-stroke {
   fill: none;
-  stroke: var(--ink);
-  stroke-width: 5;
+  stroke: color-mix(in oklab, var(--ink-3) 42%, transparent);
+  stroke-width: 4;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
