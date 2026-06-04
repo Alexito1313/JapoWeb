@@ -120,6 +120,18 @@ export function AutoStage({
     }
   }, [accent])
 
+  // Empujón para forzar el repintado del lienzo en iOS (la capa de composición a
+  // veces no se actualiza sola tras pintar un trazo; togglear algo lo arregla).
+  const forceRepaint = () => {
+    const c = canvasRef.current
+    if (!c) return
+    c.style.opacity = '0.999'
+    requestAnimationFrame(() => {
+      const c2 = canvasRef.current
+      if (c2) c2.style.opacity = ''
+    })
+  }
+
   const setupCanvas = useCallback(() => {
     const cv = canvasRef.current
     if (!cv) return
@@ -176,12 +188,14 @@ export function AutoStage({
       const next = doneCount + 1
       doneRef.current = next // pinta ya el trazo oficial validado en el lienzo
       redrawCanvas()
+      forceRepaint()
       mistakesOnStroke.current = 0
       setShowHint(false)
       setDoneCount(next)
       if (next >= paths.length) setStatus('done')
     } else {
       redrawCanvas() // limpia el trazo en curso
+      forceRepaint()
       mistakesOnStroke.current += 1
       setMistakes((m) => m + 1)
       if (mistakesOnStroke.current >= 2) {
