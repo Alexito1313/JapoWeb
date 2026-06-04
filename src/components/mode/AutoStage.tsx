@@ -50,6 +50,8 @@ export function AutoStage({
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
   const drawing = useRef(false)
   const curPts = useRef<{ x: number; y: number }[]>([])
+  const doneRef = useRef(0) // espejo de doneCount para pintar en el lienzo
+  const inkRef = useRef('#1B1A17')
 
   const accent = WRITE_PALETTE[variant].accent
 
@@ -63,6 +65,7 @@ export function AutoStage({
     setStatus('writing')
     setShowHint(false)
     mistakesOnStroke.current = 0
+    doneRef.current = 0
     loadKvg(card.jp)
       .then((data) => {
         if (cancelled) return
@@ -87,10 +90,27 @@ export function AutoStage({
     if (!cv || !ctx) return
     const rect = cv.getBoundingClientRect()
     ctx.clearRect(0, 0, rect.width, rect.height)
-    ctx.strokeStyle = accent
-    ctx.lineWidth = 12
     ctx.lineCap = 'round'
     ctx.lineJoin = 'round'
+    const sx = rect.width / 109
+    const sy = rect.height / 109
+    // Trazos ya validados: la forma OFICIAL (sampleada) en SÓLIDO, dibujada en el
+    // LIENZO (no en el SVG) para esquivar el bug de repintado de iOS Safari (los
+    // <path> nuevos no se pintaban hasta togglear la guía).
+    ctx.strokeStyle = inkRef.current
+    ctx.lineWidth = 5 * sx
+    const exp = expSamples.current
+    for (let i = 0; i < doneRef.current; i++) {
+      const st = exp[i]
+      if (!st || !st.length) continue
+      ctx.beginPath()
+      ctx.moveTo(st[0][0] * sx, st[0][1] * sy)
+      for (const [ux, uy] of st) ctx.lineTo(ux * sx, uy * sy)
+      ctx.stroke()
+    }
+    // Trazo en curso (color acento mientras lo dibujas).
+    ctx.strokeStyle = accent
+    ctx.lineWidth = 12
     const s = curPts.current
     if (s.length > 0) {
       ctx.beginPath()
@@ -111,6 +131,8 @@ export function AutoStage({
     if (!ctx) return
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctxRef.current = ctx
+    inkRef.current =
+      getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || inkRef.current
     redrawCanvas()
   }, [redrawCanvas])
 
@@ -150,14 +172,16 @@ export function AutoStage({
     const expected = expSamples.current[doneCount]
     const ok = expected ? matchStroke(userUnits, expected) : false
     curPts.current = []
-    redrawCanvas()
     if (ok) {
       const next = doneCount + 1
+      doneRef.current = next // pinta ya el trazo oficial validado en el lienzo
+      redrawCanvas()
       mistakesOnStroke.current = 0
       setShowHint(false)
       setDoneCount(next)
       if (next >= paths.length) setStatus('done')
     } else {
+      redrawCanvas() // limpia el trazo en curso
       mistakesOnStroke.current += 1
       setMistakes((m) => m + 1)
       if (mistakesOnStroke.current >= 2) {
@@ -173,6 +197,7 @@ export function AutoStage({
     setStatus('writing')
     setShowHint(false)
     mistakesOnStroke.current = 0
+    doneRef.current = 0
     curPts.current = []
     redrawCanvas()
   }, [redrawCanvas])
@@ -226,12 +251,10 @@ export function AutoStage({
               <line x1="54.5" y1="6" x2="54.5" y2="103" />
               <line x1="6" y1="54.5" x2="103" y2="54.5" />
             </g>
-            {/* Guía = plantilla COMPLETA y constante (todos los trazos, no se
-                encoge). Los trazos ya validados se "rellenan" en sólido (oficial). */}
+            {/* Guía = plantilla COMPLETA y constante (todos los trazos). Los
+                trazos validados (oficiales sólidos) se pintan en el LIENZO, no
+                aquí, para evitar el bug de repintado de SVG en iOS. */}
             {guideOn && paths.map((d, i) => <path key={'g' + i} className="kvg-guide-stroke" d={d} />)}
-            {paths.slice(0, doneCount).map((d, i) => (
-              <path key={'d' + i} className="kvg-done-stroke" d={d} />
-            ))}
             {showHint && paths[doneCount] && (
               <path
                 key={'h' + hintKey}
