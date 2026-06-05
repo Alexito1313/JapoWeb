@@ -77,12 +77,15 @@ function sanitizeStreak(raw: unknown): StreakState {
 export class LocalProgressRepository implements ProgressRepository {
   private snapshot: ProgressSnapshot
   private listeners = new Set<() => void>()
+  private saveError = false
 
   constructor() {
     this.snapshot = this.read()
   }
 
   getSnapshot = (): ProgressSnapshot => this.snapshot
+
+  hasSaveError = (): boolean => this.saveError
 
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener)
@@ -113,8 +116,11 @@ export class LocalProgressRepository implements ProgressRepository {
     this.snapshot = next
     try {
       localStorage.setItem(KEY, JSON.stringify(next))
+      this.saveError = false
     } catch {
-      /* almacenamiento lleno o no disponible: el estado en memoria sigue válido */
+      // almacenamiento lleno o no disponible (cuota / Safari privado): el estado
+      // en memoria sigue válido, pero marcamos el fallo para avisar al usuario.
+      this.saveError = true
     }
     this.listeners.forEach((l) => l())
   }

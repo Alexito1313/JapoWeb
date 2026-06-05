@@ -29,7 +29,9 @@ export function computeStats(content: Content, snap: ProgressSnapshot): StatsDat
   const cards = snap.cards
   const byJp: Record<string, Card> = {}
   content.all.forEach((c) => {
-    byJp[c.jp] = c
+    // "primero gana": content.all lista el contenido base ANTES que el propio
+    // (Míos), así una entrada de Míos que comparta jp NO sombrea a la base.
+    if (!byJp[c.jp]) byJp[c.jp] = c
   })
   const studied = Object.values(cards)
 

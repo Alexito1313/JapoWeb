@@ -54,7 +54,12 @@ export function DetailScreen() {
   const navigate = useNavigate()
   const back = useSafeBack()
   const params = useParams()
-  const id = params.id ? decodeURIComponent(params.id) : ''
+  let id = ''
+  try {
+    id = params.id ? decodeURIComponent(params.id) : ''
+  } catch {
+    id = '' // %-encoding malformado → "carta no encontrada" (no crash a la pantalla de error)
+  }
 
   const card = useMemo(
     () => (content ? content.all.find((c) => c.jp === id) ?? null : null),

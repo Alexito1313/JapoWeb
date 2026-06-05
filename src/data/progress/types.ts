@@ -62,4 +62,6 @@ export interface ProgressRepository {
   exportJSON(): string
   importJSON(json: string): boolean
   reset(): void
+  /** true si el último intento de guardar en localStorage falló (cuota / privado). */
+  hasSaveError(): boolean
 }

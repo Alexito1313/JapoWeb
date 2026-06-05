@@ -16,7 +16,12 @@ export function TraceScreen() {
   const params = useParams()
   const location = useLocation()
   const meta = (location.state as { romaji?: string; system?: string } | null) ?? {}
-  const ch = decodeURIComponent(params.char ?? '')
+  let ch = ''
+  try {
+    ch = decodeURIComponent(params.char ?? '')
+  } catch {
+    ch = '' // %-encoding malformado → se trata como carácter no válido (no crash)
+  }
   const [round, setRound] = useState(0)
 
   if (!ch) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useProgress } from '../data/progress/ProgressContext'
 
 /** Niveles/cursos. Solo J3 desbloqueado por ahora (el resto, próximamente). */
@@ -29,6 +29,16 @@ export function LevelChip() {
     if (!locked) repo.setSettings({ level: id })
     setOpen(false)
   }
+
+  // Cerrar el bottom-sheet con Escape (a11y / teclado).
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
 
   return (
     <>

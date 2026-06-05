@@ -224,6 +224,16 @@ export function AutoStage({
     }
   }
 
+  // El sistema interrumpió el trazo (notificación, palma, scroll del navegador…):
+  // se descarta SIN contarlo como error (antes onPointerCancel reusaba onUp, que
+  // lo evaluaba y casi siempre lo marcaba como fallo).
+  const onCancel = () => {
+    if (!drawing.current) return
+    drawing.current = false
+    curPts.current = []
+    redrawCanvas()
+  }
+
   const restart = useCallback(() => {
     setDoneCount(0)
     setMistakes(0)
@@ -303,7 +313,7 @@ export function AutoStage({
             onPointerDown={onDown}
             onPointerMove={onMove}
             onPointerUp={onUp}
-            onPointerCancel={onUp}
+            onPointerCancel={onCancel}
           ></canvas>
           {loading && <div className="hw-loading">cargando trazos…</div>}
           {status === 'done' && (

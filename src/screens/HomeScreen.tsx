@@ -372,10 +372,12 @@ export function HomeScreen() {
     navigate(path, { state: { selection } })
   }
 
-  const daily = useMemo(
-    () => (content && content.kanji.length ? content.kanji[dailyIndex(content.kanji.length)] : null),
-    [content],
-  )
+  const daily = useMemo(() => {
+    // El kanji del día sale SOLO del temario base (excluye Míos), para que no se
+    // desplace ni caiga en una entrada propia al añadir contenido.
+    const base = content ? content.kanji.filter((k) => k.block !== 'MIOS') : []
+    return base.length ? base[dailyIndex(base.length)] : null
+  }, [content])
 
   const changeContent = (c: ContentSel) => {
     setContentSel(c)

@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { ONBOARDED_KEY } from './screens/OnboardingScreen'
 import { TabBar } from './components/TabBar'
 import { DesktopNav } from './components/DesktopNav'
+import { SaveErrorBanner } from './components/SaveErrorBanner'
 
 // Rutas de "sección" que muestran la tab bar inferior. Los modos de estudio y
 // las vistas empujadas (detalle, stats, onboarding) NO la muestran.
@@ -34,6 +35,7 @@ export function AppShell() {
         'app-root' + (showTabBar ? ' has-tabbar' : '') + (showDesktopNav ? ' dk-host' : '')
       }
     >
+      <SaveErrorBanner />
       {showDesktopNav && <DesktopNav />}
       <Outlet />
       {showTabBar && <TabBar />}
