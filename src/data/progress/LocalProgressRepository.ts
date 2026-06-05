@@ -3,6 +3,7 @@ import type {
   ProgressRepository,
   ProgressSnapshot,
   Settings,
+  StreakState,
 } from './types'
 import { DAY_MS, dayKey, nextSRS } from './srs'
 
@@ -17,6 +18,55 @@ function emptySnapshot(): ProgressSnapshot {
     streak: { current: 0, longest: 0, lastStudyDay: '', days: {} },
     settings: { ...DEFAULT_SETTINGS },
   }
+}
+
+const finiteNum = (x: unknown, d = 0): number =>
+  typeof x === 'number' && Number.isFinite(x) ? x : d
+
+/** Normaliza el mapa de cartas (leído de localStorage o importado): descarta
+ *  entradas que no sean objeto y coacciona los numéricos a valores finitos.
+ *  Evita NaN propagándose a Stats/Detalle y crashes si `cards` viniera como
+ *  null/array/malformado (typeof null/[] === 'object' burlaba la validación). */
+function sanitizeCards(raw: unknown): Record<string, CardProgress> {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {}
+  const out: Record<string, CardProgress> = {}
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (!v || typeof v !== 'object') continue
+    const c = v as Record<string, unknown>
+    out[k] = {
+      jp: typeof c.jp === 'string' ? c.jp : k,
+      views: finiteNum(c.views),
+      right: finiteNum(c.right),
+      wrong: finiteNum(c.wrong),
+      lastSeen: finiteNum(c.lastSeen),
+      reps: finiteNum(c.reps),
+      intervalDays: finiteNum(c.intervalDays),
+      ease: finiteNum(c.ease, 2.5),
+      due: finiteNum(c.due),
+    }
+  }
+  return out
+}
+
+/** Normaliza la racha (días → conteos numéricos > 0; campos numéricos finitos). */
+function sanitizeStreak(raw: unknown): StreakState {
+  const days: Record<string, number> = {}
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const s = raw as Record<string, unknown>
+    if (s.days && typeof s.days === 'object' && !Array.isArray(s.days)) {
+      for (const [k, v] of Object.entries(s.days as Record<string, unknown>)) {
+        const n = finiteNum(v)
+        if (n > 0) days[k] = n
+      }
+    }
+    return {
+      current: finiteNum(s.current),
+      longest: finiteNum(s.longest),
+      lastStudyDay: typeof s.lastStudyDay === 'string' ? s.lastStudyDay : '',
+      days,
+    }
+  }
+  return { current: 0, longest: 0, lastStudyDay: '', days }
 }
 
 /**
@@ -50,9 +100,9 @@ export class LocalProgressRepository implements ProgressRepository {
       return {
         ...base,
         ...parsed,
-        streak: { ...base.streak, ...parsed.streak },
+        streak: sanitizeStreak(parsed.streak),
         settings: { ...base.settings, ...parsed.settings },
-        cards: parsed.cards ?? {},
+        cards: sanitizeCards(parsed.cards),
       }
     } catch {
       return emptySnapshot()
@@ -109,14 +159,23 @@ export class LocalProgressRepository implements ProgressRepository {
   importJSON(json: string): boolean {
     try {
       const parsed = JSON.parse(json) as Partial<ProgressSnapshot>
-      if (!parsed || typeof parsed !== 'object' || typeof parsed.cards !== 'object') return false
+      // Validación estricta: `cards` debe ser un objeto plano (ni null ni array;
+      // typeof de ambos es 'object' y antes colaban, dejando cards=null → crash,
+      // o un array → progreso "fantasma" inconsistente).
+      if (
+        !parsed ||
+        typeof parsed !== 'object' ||
+        typeof parsed.cards !== 'object' ||
+        parsed.cards === null ||
+        Array.isArray(parsed.cards)
+      )
+        return false
       const base = emptySnapshot()
       this.commit({
         ...base,
-        ...parsed,
-        streak: { ...base.streak, ...parsed.streak },
+        cards: sanitizeCards(parsed.cards),
+        streak: sanitizeStreak(parsed.streak),
         settings: { ...base.settings, ...parsed.settings },
-        cards: parsed.cards ?? {},
       })
       return true
     } catch {

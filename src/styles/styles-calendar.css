@@ -144,26 +144,3 @@
 .milestone .ms-info { display: flex; flex-direction: column; line-height: 1.3; }
 .milestone .ms-days { font-family: var(--serif); font-weight: 700; font-size: 14px; color: var(--ink); }
 .milestone .ms-label { font-size: 11px; color: var(--ink-3); }
-
-/* ============================================================
-   Calendario — escritorio
-   ============================================================ */
-.dt-cal-wrap { padding: 32px 30px 44px; max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
-.dt-cal-head {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  gap: 24px; margin-bottom: 24px;
-}
-.dt-cal-title {
-  font-family: var(--serif); font-weight: 700; font-size: 34px; margin: 6px 0 0;
-  letter-spacing: -0.02em; color: var(--ink);
-}
-.dt-cal-title .sub { display: block; font-size: 14px; color: var(--ink-3); font-weight: 400; margin-top: 6px; }
-.dt-cal-grid-layout {
-  display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: start;
-}
-.cal-card.big { padding: 22px; }
-.cal-card.big .cal-grid { gap: 8px; }
-.cal-card.big .cal-cell { border-radius: 9px; }
-.cal-card.big .cal-cell .cc-day { font-size: 11px; padding: 4px 6px; }
-.cal-card.big .cal-week-head .cwh { font-size: 12px; }
-.dt-cal-side { display: flex; flex-direction: column; gap: 22px; }

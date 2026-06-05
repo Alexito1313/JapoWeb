@@ -63,13 +63,18 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
   const [answered, setAnswered] = useState<Answer[]>([])
   const [finished, setFinished] = useState(false)
   const startRef = useRef({ x: 0, y: 0, t: 0, moved: false })
+  const advancing = useRef(false)
+  const exitTimer = useRef<number | null>(null)
 
   const perSession = repo.getSnapshot().settings.cardsPerSession
   const TOTAL_SESSION = mode === 'review' ? total : Math.min(perSession, total || perSession)
 
   const advance = useCallback(
     (correct: boolean) => {
-      if (!total) return
+      // Ignora doble-clic en los botones / doble-tecla durante la animación de
+      // salida: si no, la respuesta se contaba dos veces y podía saltar carta.
+      if (!total || advancing.current) return
+      advancing.current = true
       setFeedback(correct ? 'good' : 'bad')
       setExiting(correct ? 'right' : 'left')
       setStats((s) => (correct ? { ...s, right: s.right + 1 } : { ...s, wrong: s.wrong + 1 }))
@@ -84,7 +89,8 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
       const nextAnsweredLen = answered.length + 1
       setAnswered((a) => [...a, { card: justAnswered, correct }])
 
-      window.setTimeout(() => {
+      exitTimer.current = window.setTimeout(() => {
+        exitTimer.current = null
         if (nextAnsweredLen >= TOTAL_SESSION) {
           setFinished(true)
           setExiting(null)
@@ -97,6 +103,7 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
           // Limpiar el feedback AL cambiar de carta: si no, la nueva (que se
           // remonta con key) heredaría el brillo verde/rojo de la anterior.
           setFeedback(null)
+          advancing.current = false
         }
       }, 420)
     },
@@ -104,6 +111,11 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
   )
 
   const resetSession = useCallback(() => {
+    if (exitTimer.current) {
+      clearTimeout(exitTimer.current)
+      exitTimer.current = null
+    }
+    advancing.current = false
     setIndex(0)
     setFlipped(false)
     setDx(0)
@@ -161,6 +173,14 @@ export function FlashcardScreen({ mode = 'study' }: { mode?: 'study' | 'review' 
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [flipped, exiting, advance, finished])
+
+  // Limpia el timeout de salida al desmontar (evita setState tras unmount).
+  useEffect(
+    () => () => {
+      if (exitTimer.current) clearTimeout(exitTimer.current)
+    },
+    [],
+  )
 
   if (loading) {
     return (

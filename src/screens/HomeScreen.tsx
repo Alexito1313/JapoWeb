@@ -306,7 +306,9 @@ export function HomeScreen() {
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set())
   const [selectedBlocks, setSelectedBlocks] = useState<Set<string>>(new Set())
 
-  const greet = useMemo(() => greeting(), [])
+  // Sin useMemo([]): así el saludo/hora reflejan el momento actual en cada
+  // render (antes quedaban congelados a la hora de montaje).
+  const greet = greeting()
   const level = snapshot.settings.level ?? 'J3' // nivel activo (lo gobierna el chip)
   const kanjiCounts = useMemo(() => (content ? countByBlock(content.kanji) : {}), [content])
   const vocabCounts = useMemo(() => (content ? countByBlock(content.vocab) : {}), [content])

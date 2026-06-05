@@ -95,12 +95,13 @@ export function TestScreen() {
   const correctIdx = useMemo(() => options.findIndex((o) => o.correct), [options])
 
   const goNext = useCallback(() => {
-    if (advanceTimer.current) {
-      clearTimeout(advanceTimer.current)
-      advanceTimer.current = null
-    }
+    // Si ya hay un avance en curso, ignora el segundo (doble-clic en "Siguiente"
+    // o doble pulsación de espacio/→): antes el id nunca se guardaba en el ref,
+    // así que el guard no hacía nada y se saltaba una pregunta.
+    if (advanceTimer.current) return
     setTransitioning(true)
-    window.setTimeout(() => {
+    advanceTimer.current = window.setTimeout(() => {
+      advanceTimer.current = null
       if (answered.length >= TOTAL_SESSION) setFinished(true)
       else setIndex((i) => (i + 1) % total)
       setSelected(null)
@@ -129,7 +130,10 @@ export function TestScreen() {
   )
 
   const resetSession = useCallback(() => {
-    if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current)
+      advanceTimer.current = null
+    }
     setIndex(0)
     setSelected(null)
     setTransitioning(false)
@@ -160,6 +164,14 @@ export function TestScreen() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [selected, finished, onPick, goNext])
+
+  // Limpia el timeout de avance al desmontar (evita setState tras unmount).
+  useEffect(
+    () => () => {
+      if (advanceTimer.current) clearTimeout(advanceTimer.current)
+    },
+    [],
+  )
 
   if (loading) {
     return (

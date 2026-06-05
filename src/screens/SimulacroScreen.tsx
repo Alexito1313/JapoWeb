@@ -53,15 +53,19 @@ export function SimulacroScreen() {
     setPhase('exam')
   }, [content])
 
-  // Temporizador: decrementa cada segundo; al llegar a 0, auto-entrega.
+  // Temporizador: UN solo intervalo mientras dura el examen. Antes el effect
+  // dependía de `submit` (que cambia de identidad en cada respuesta), así que
+  // cada pick reiniciaba la cuenta del segundo en curso y el cronómetro derivaba
+  // (regalaba tiempo). Ahora el intervalo no se reinicia al responder.
   useEffect(() => {
     if (phase !== 'exam') return
-    if (secsLeft <= 0) {
-      submit()
-      return
-    }
-    const t = window.setTimeout(() => setSecsLeft((s) => s - 1), 1000)
-    return () => clearTimeout(t)
+    const id = window.setInterval(() => setSecsLeft((s) => (s <= 0 ? 0 : s - 1)), 1000)
+    return () => window.clearInterval(id)
+  }, [phase])
+
+  // Auto-entrega al agotarse el tiempo (efecto aparte; submit está guardado por ref).
+  useEffect(() => {
+    if (phase === 'exam' && secsLeft <= 0) submit()
   }, [phase, secsLeft, submit])
 
   const pick = (i: number) =>

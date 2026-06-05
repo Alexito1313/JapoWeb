@@ -7,6 +7,21 @@
     <link rel="icon" type="image/svg+xml" href="icon-src.svg" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
     <title>日本語 estudio</title>
+    <script>
+      // Aplica el tema (.va claro / .vb oscuro) en <html> ANTES de pintar, para
+      // evitar el flash de tema en carga en frío (un usuario "oscuro" veía un
+      // destello claro). ThemeProvider lo reaplica luego (idempotente).
+      ;(function () {
+        try {
+          var p = localStorage.getItem('japoweb.theme')
+          var dark =
+            p === 'dark' ||
+            ((p === null || p === 'auto') &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          document.documentElement.classList.add(dark ? 'vb' : 'va')
+        } catch (e) {}
+      })()
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
