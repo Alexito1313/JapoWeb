@@ -444,7 +444,7 @@ export function HomeScreen() {
     const dAcc = dRight + dWrong ? Math.round((dRight / (dRight + dWrong)) * 100) : 0
 
     return (
-      <div className="home-frame hd-frame">
+      <div className="home-frame hd-frame home-main">
         <Backdrop variant={variant} />
         <div className="home-content hd-content">
           <div className="chome-headrow">
@@ -592,7 +592,7 @@ export function HomeScreen() {
   }
 
   return (
-    <div className="home-frame">
+    <div className="home-frame home-main">
       <Backdrop variant={variant} />
       <div className="home-content">
         <div className="home-header">
