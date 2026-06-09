@@ -33,7 +33,7 @@ export function WashiBackdrop() {
   const SOFT = 'linear-gradient(180deg, #5a564e 0%, #7d786d 100%)'
   return (
     <div className="washi-bg" aria-hidden="true">
-      <div className="seal">朱</div>
+      <div className="seal">墨</div>
       <div className="sc-sun" style={{ opacity: 0.4 }}></div>
       <div className="sc-backrange"></div>
       <div className="sc-backrange front"></div>

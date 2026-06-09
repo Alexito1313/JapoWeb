@@ -1160,7 +1160,7 @@
   clip-path: polygon(0% 75%, 6% 30%, 14% 8%, 86% 8%, 94% 30%, 100% 75%, 100% 100%, 0% 100%);
 }
 
-/* sello hanko 朱 arriba a la derecha */
+/* sello hanko 墨 arriba a la derecha */
 .washi-bg .seal {
   position: absolute;
   top: 26px; right: 24px;

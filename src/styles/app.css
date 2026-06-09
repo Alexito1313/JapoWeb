@@ -1585,7 +1585,7 @@ body {
   transform: scale(0.95);
 }
 
-/* El sello hanko 朱 de la escena (solo washi/claro) asomaba por detrás de la
+/* El sello hanko 墨 de la escena (solo washi/claro) asomaba por detrás de la
    tarjeta del "kanji del día" en el Home (esquina superior derecha). Se oculta
    SOLO en el Home (clase .home-main); en el resto de pantallas sigue como
    marca de agua decorativa sutil. */
