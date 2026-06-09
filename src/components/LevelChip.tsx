@@ -43,7 +43,7 @@ export function LevelChip() {
   return (
     <>
       <button className="levelchip" onClick={() => setOpen(true)} aria-label="Cambiar de nivel">
-        <span className="lc-mark">朱</span>
+        <span className="lc-mark">墨</span>
         <span className="lc-id">{current.id}</span>
         <span className="lc-caret">▾</span>
       </button>

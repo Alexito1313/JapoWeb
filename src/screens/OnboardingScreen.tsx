@@ -37,7 +37,7 @@ export function OnboardingScreen() {
       <Backdrop variant={variant} />
       <div className="home-content">
         <div className="onb-wrap">
-          <div className="onb-mark">朱</div>
+          <div className="onb-mark">墨</div>
           <div className="onb-eyebrow">ようこそ · bienvenido/a</div>
           <h1 className="onb-title">
             Aprende japonés
