@@ -159,7 +159,7 @@ export function StatsScreen() {
         className="stats-btn ghost"
         onClick={() =>
           downloadJSON(
-            `japoweb-progreso-${new Date().toISOString().slice(0, 10)}.json`,
+            `sumigo-progreso-${new Date().toISOString().slice(0, 10)}.json`,
             repo.exportJSON(),
           )
         }

@@ -20,7 +20,7 @@ import { Placeholder } from './screens/Placeholder'
  * sustituyendo por las reales en fases posteriores.
  *
  * El basename sale de import.meta.env.BASE_URL (que Vite fija según `base`):
- * '/' en desarrollo y '/JapoWeb/' en producción. Así las rutas funcionan bajo
+ * '/' en desarrollo y '/Sumigo/' en producción. Así las rutas funcionan bajo
  * la subruta de GitHub Pages sin tocar nada.
  */
 const basename = import.meta.env.BASE_URL.replace(/\/+$/, '') || '/'

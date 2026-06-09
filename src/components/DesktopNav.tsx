@@ -43,10 +43,10 @@ export function DesktopNav() {
   return (
     <aside className="desktop-nav" aria-label="Navegación principal">
       <div className="dk-brand">
-        <span className="dk-mark">朱</span>
+        <span className="dk-mark">墨</span>
         <span className="dk-wm">
-          <b>日本語</b>
-          <small>estudio</small>
+          <b>Sumigo</b>
+          <small>墨語</small>
         </span>
       </div>
 

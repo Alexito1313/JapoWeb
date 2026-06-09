@@ -23,8 +23,8 @@ export function Placeholder({ name, jp }: { name: string; jp: string }) {
 
   return (
     <div className="ph">
-      <div className="brand-mark">朱</div>
-      <p className="eyebrow">日本語 · estudio</p>
+      <div className="brand-mark">墨</div>
+      <p className="eyebrow">Sumigo · 墨語</p>
       <h1 className="serif ph-title">
         {name} <span className="ph-jp jp">{jp}</span>
       </h1>

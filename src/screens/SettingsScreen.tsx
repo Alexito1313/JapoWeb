@@ -74,7 +74,7 @@ export function SettingsScreen() {
   const daysStudying = Object.keys(snapshot.streak.days).length
 
   const onExport = () =>
-    downloadJSON(`japoweb-progreso-${new Date().toISOString().slice(0, 10)}.json`, repo.exportJSON())
+    downloadJSON(`sumigo-progreso-${new Date().toISOString().slice(0, 10)}.json`, repo.exportJSON())
 
   const onImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -211,7 +211,7 @@ export function SettingsScreen() {
         <SettingsRow label="Contenido" control={<span className="setting-value muted">J3 · N4 · L26-L36</span>} />
         <SettingsRow
           label="Repositorio"
-          control={<span className="setting-value muted">Alexito1313/JapoWeb</span>}
+          control={<span className="setting-value muted">Alexito1313/Sumigo</span>}
         />
       </div>
     </div>
@@ -220,7 +220,7 @@ export function SettingsScreen() {
   const footer = (
     <div className="settings-footer">
       <span className="brushstroke"></span>
-      日本語 estudio
+      Sumigo 墨語
       <span className="brushstroke"></span>
     </div>
   )

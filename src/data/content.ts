@@ -44,7 +44,7 @@ interface RawItem {
   extra?: string
 }
 
-/** Base URL fijada por Vite ('/' en dev, '/JapoWeb/' en prod). Acaba en '/'. */
+/** Base URL fijada por Vite ('/' en dev, '/Sumigo/' en prod). Acaba en '/'. */
 function dataUrl(path: string): string {
   return import.meta.env.BASE_URL + path
 }

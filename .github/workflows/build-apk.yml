@@ -49,6 +49,6 @@ jobs:
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
-          name: japoweb-apk
+          name: sumigo-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error

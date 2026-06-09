@@ -2,12 +2,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// En producción GitHub Pages sirve en https://alexito1313.github.io/JapoWeb/ → base con la subruta.
+// En producción GitHub Pages sirve en https://alexito1313.github.io/Sumigo/ → base con la subruta.
 // En desarrollo servimos en '/' para que el dev server y el preview sean cómodos.
 // (Cuando se empaquete con Capacitor para tiendas, cambiar base a './'.)
 export default defineConfig(({ command, isPreview }) => ({
   // CAP_BUILD (APK Capacitor): base '/' (la WebView sirve desde la raíz).
-  base: process.env.CAP_BUILD ? '/' : command === 'build' || isPreview ? '/JapoWeb/' : '/',
+  base: process.env.CAP_BUILD ? '/' : command === 'build' || isPreview ? '/Sumigo/' : '/',
   plugins: [
     react(),
     // En el build de Capacitor no usamos PWA: los assets ya van dentro del APK.
@@ -18,10 +18,10 @@ export default defineConfig(({ command, isPreview }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['icon-src.svg', 'icons/apple-touch-icon.png'],
       manifest: {
-        name: '日本語 estudio',
-        short_name: 'JapoWeb',
+        name: 'Sumigo · 墨語',
+        short_name: 'Sumigo',
         description:
-          'Estudia japonés: kanji y vocabulario con flashcards, test, escritura y simulacro JLPT.',
+          'Estudia japonés: kanji y vocabulario con flashcards, test, escritura y simulacro de examen N4.',
         lang: 'es',
         theme_color: '#C8102E',
         background_color: '#0E1E33',
