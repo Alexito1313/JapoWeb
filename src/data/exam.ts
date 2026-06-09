@@ -11,18 +11,24 @@ export interface ExamQuestion {
   correct: number
 }
 
-function pickDistractors(pool: Card[], current: Card, key: 'mean' | 'read', n: number): string[] {
+function pickDistractors(
+  pool: Card[],
+  current: Card,
+  key: 'mean' | 'read',
+  n: number,
+  seed: number,
+): string[] {
   const seen = new Set<string>([current[key]])
   const out: string[] = []
   // preferimos distractores del mismo tipo (más plausibles)
-  for (const c of shuffle(pool.filter((c) => c.type === current.type))) {
+  for (const c of shuffle(pool.filter((c) => c.type === current.type), seed)) {
     if (seen.has(c[key])) continue
     seen.add(c[key])
     out.push(c[key])
     if (out.length >= n) break
   }
   if (out.length < n) {
-    for (const c of shuffle(pool)) {
+    for (const c of shuffle(pool, seed + 1)) {
       if (seen.has(c[key])) continue
       seen.add(c[key])
       out.push(c[key])
@@ -40,13 +46,19 @@ function pickDistractors(pool: Card[], current: Card, key: 'mean' | 'read', n: n
  */
 export function buildExam(content: Content, n = 10): ExamQuestion[] {
   const pool = content.all
-  return shuffle(pool)
+  const seed = Date.now()
+  return shuffle(pool, seed)
     .slice(0, n)
     .map((card, idx) => {
+      // Semilla DISTINTA por pregunta: todas las llamadas a shuffle de un examen
+      // caen en el mismo milisegundo, así que con la semilla por defecto las 10
+      // preguntas barajaban sus 4 opciones con la MISMA permutación y la
+      // respuesta correcta quedaba siempre en la misma posición.
+      const qSeed = seed + (idx + 1) * 7919
       const askReading = card.type === 'kanji' && idx % 2 === 0
       const key: 'read' | 'mean' = askReading ? 'read' : 'mean'
       const correctVal = card[key]
-      const options = shuffle([correctVal, ...pickDistractors(pool, card, key, 3)])
+      const options = shuffle([correctVal, ...pickDistractors(pool, card, key, 3, qSeed)], qSeed)
       return {
         jp: card.jp,
         type: askReading ? 'Lectura' : 'Significado',
