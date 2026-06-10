@@ -32,10 +32,16 @@ function resolveVariant(pref: ThemePref): Variant {
 }
 
 function readStoredPref(): ThemePref {
-  const stored = localStorage.getItem(STORAGE_KEY)
-  return stored === 'light' || stored === 'dark' || stored === 'auto'
-    ? stored
-    : 'auto'
+  // try/catch: con el almacenamiento bloqueado (Safari "bloquear cookies",
+  // webviews restrictivas) getItem LANZA y dejaba la app en blanco al montar.
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored === 'light' || stored === 'dark' || stored === 'auto'
+      ? stored
+      : 'auto'
+  } catch {
+    return 'auto'
+  }
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

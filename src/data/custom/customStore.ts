@@ -22,12 +22,39 @@ export interface CustomEntry {
 
 const KEY = 'japoweb.custom'
 
+/** Normaliza una entrada leída/importada; null si no es recuperable. Antes el
+ *  cast ciego `arr as CustomEntry[]` dejaba pasar null/{} y un solo elemento
+ *  corrupto reventaba MiosTab y los mazos. */
+function sanitizeEntry(v: unknown): CustomEntry | null {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return null
+  const e = v as Record<string, unknown>
+  if (typeof e.jp !== 'string' || !e.jp.trim()) return null
+  if (typeof e.mean !== 'string') return null
+  return {
+    id: typeof e.id === 'string' && e.id ? e.id : genId(),
+    jp: e.jp,
+    read: typeof e.read === 'string' ? e.read : '',
+    mean: e.mean,
+    kind: e.kind === 'kanji' ? 'kanji' : 'vocab',
+    type: typeof e.type === 'string' ? e.type : '',
+    extras: Array.isArray(e.extras)
+      ? (e.extras as unknown[]).filter((x): x is string => typeof x === 'string')
+      : [],
+    createdAt:
+      typeof e.createdAt === 'number' && Number.isFinite(e.createdAt) ? e.createdAt : 0,
+  }
+}
+
+function sanitizeEntries(raw: unknown): CustomEntry[] {
+  if (!Array.isArray(raw)) return []
+  return raw.map(sanitizeEntry).filter((x): x is CustomEntry => x !== null)
+}
+
 function readStore(): CustomEntry[] {
   try {
     const raw = localStorage.getItem(KEY)
     if (!raw) return []
-    const arr = JSON.parse(raw)
-    return Array.isArray(arr) ? (arr as CustomEntry[]) : []
+    return sanitizeEntries(JSON.parse(raw))
   } catch {
     return []
   }
@@ -35,6 +62,17 @@ function readStore(): CustomEntry[] {
 
 let snapshot: CustomEntry[] = readStore()
 const listeners = new Set<() => void>()
+
+// Sincronización entre pestañas: 'storage' solo dispara en las OTRAS pestañas;
+// sin esto, dos pestañas abiertas se machacaban las entradas entre sí.
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (e.key === KEY || e.key === null) {
+      snapshot = readStore()
+      listeners.forEach((l) => l())
+    }
+  })
+}
 
 function commit(next: CustomEntry[]) {
   snapshot = next
@@ -68,6 +106,10 @@ export const customStore = {
   },
   remove: (id: string): void => {
     commit(snapshot.filter((x) => x.id !== id))
+  },
+  /** Reemplaza todas las entradas (restauración de copia de seguridad). */
+  replaceAll: (entries: unknown): void => {
+    commit(sanitizeEntries(entries))
   },
 }
 

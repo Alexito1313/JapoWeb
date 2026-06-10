@@ -1,18 +1,9 @@
 import { useRef, type ReactNode } from 'react'
 import { useTheme, type ThemePref } from '../theme/ThemeProvider'
 import { useProgress } from '../data/progress/ProgressContext'
+import { buildBackup, downloadJSON, importBackup } from '../data/backup'
 import { Backdrop } from '../components/Backdrop'
 import { useIsDesktop } from '../components/useIsDesktop'
-
-function downloadJSON(filename: string, json: string) {
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
-}
 
 function SettingsRow({
   label,
@@ -74,16 +65,17 @@ export function SettingsScreen() {
   const daysStudying = Object.keys(snapshot.streak.days).length
 
   const onExport = () =>
-    downloadJSON(`sumigo-progreso-${new Date().toISOString().slice(0, 10)}.json`, repo.exportJSON())
+    downloadJSON(`sumigo-progreso-${new Date().toISOString().slice(0, 10)}.json`, buildBackup(repo))
 
   const onImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
     reader.onload = () => {
-      const ok = repo.importJSON(String(reader.result))
-      window.alert(ok ? 'Progreso importado correctamente.' : 'El archivo no es válido.')
+      const ok = importBackup(repo, String(reader.result))
+      window.alert(ok ? 'Copia importada correctamente.' : 'El archivo no es válido.')
     }
+    reader.onerror = () => window.alert('No se pudo leer el archivo.')
     reader.readAsText(file)
     e.target.value = ''
   }

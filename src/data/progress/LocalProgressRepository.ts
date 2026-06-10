@@ -48,6 +48,38 @@ function sanitizeCards(raw: unknown): Record<string, CardProgress> {
   return out
 }
 
+/** Normaliza los ajustes. Antes `settings` se fusionaba SIN validar y un
+ *  `lastSession` malformado (importado o corrupto) crasheaba la Home en cada
+ *  arranque (`last.blocks.length` sobre undefined, `new Set(5)` no iterable). */
+function sanitizeSettings(raw: unknown): Settings {
+  const out: Settings = { ...DEFAULT_SETTINGS }
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out
+  const s = raw as Record<string, unknown>
+  const cps = Math.floor(finiteNum(s.cardsPerSession, out.cardsPerSession))
+  if (cps >= 1) out.cardsPerSession = cps
+  if (typeof s.level === 'string' && s.level) out.level = s.level
+  const ls = s.lastSession
+  if (ls && typeof ls === 'object' && !Array.isArray(ls)) {
+    const l = ls as Record<string, unknown>
+    const contentOk = l.content === 'kanji' || l.content === 'vocab' || l.content === 'both'
+    if (contentOk && typeof l.path === 'string' && Array.isArray(l.blocks)) {
+      const blocks = (l.blocks as unknown[]).filter((b): b is string => typeof b === 'string')
+      const types = Array.isArray(l.types)
+        ? (l.types as unknown[]).filter((t): t is string => typeof t === 'string')
+        : []
+      if (blocks.length) {
+        out.lastSession = {
+          path: l.path,
+          content: l.content as 'kanji' | 'vocab' | 'both',
+          blocks,
+          types: types.length ? types : undefined,
+        }
+      }
+    }
+  }
+  return out
+}
+
 /** Normaliza la racha (días → conteos numéricos > 0; campos numéricos finitos). */
 function sanitizeStreak(raw: unknown): StreakState {
   const days: Record<string, number> = {}
@@ -87,10 +119,34 @@ export class LocalProgressRepository implements ProgressRepository {
 
   hasSaveError = (): boolean => this.saveError
 
+  /** Sincronización entre pestañas/ventanas: 'storage' dispara solo en las
+   *  OTRAS pestañas; al recibirlo releemos para no machacar luego lo guardado
+   *  por la otra. MITIGACIÓN, no solución completa: si una mutación de esta
+   *  pestaña cae en la ventana de milisegundos previa al evento, sigue ganando
+   *  el último que escribe (la fusión real por carta llegará con el backend).
+   *  e.key null cubre localStorage.clear(). */
+  private onStorage = (e: StorageEvent): void => {
+    if (e.key !== KEY && e.key !== null) return
+    // Si hay progreso solo-en-memoria (el guardado falló: cuota/privado), el
+    // contrato del banner es conservarlo: no lo pisamos con la copia del disco.
+    if (this.saveError) return
+    this.snapshot = this.read()
+    this.listeners.forEach((l) => l())
+  }
+
   subscribe = (listener: () => void): (() => void) => {
+    // El listener de window vive solo mientras haya suscriptores: la instancia
+    // huérfana que crea StrictMode en dev nunca se suscribe → nunca escucha.
+    if (this.listeners.size === 0 && typeof window !== 'undefined') {
+      window.addEventListener('storage', this.onStorage)
+      // Pudo perderse algún evento mientras no había suscriptores.
+      if (!this.saveError) this.snapshot = this.read()
+    }
     this.listeners.add(listener)
     return () => {
       this.listeners.delete(listener)
+      if (this.listeners.size === 0 && typeof window !== 'undefined')
+        window.removeEventListener('storage', this.onStorage)
     }
   }
 
@@ -99,13 +155,13 @@ export class LocalProgressRepository implements ProgressRepository {
       const raw = localStorage.getItem(KEY)
       if (!raw) return emptySnapshot()
       const parsed = JSON.parse(raw) as Partial<ProgressSnapshot>
-      const base = emptySnapshot()
+      // Construcción explícita: solo claves conocidas (no se arrastra basura
+      // del JSON) y version siempre fijada por el código.
       return {
-        ...base,
-        ...parsed,
-        streak: sanitizeStreak(parsed.streak),
-        settings: { ...base.settings, ...parsed.settings },
+        version: VERSION,
         cards: sanitizeCards(parsed.cards),
+        streak: sanitizeStreak(parsed.streak),
+        settings: sanitizeSettings(parsed.settings),
       }
     } catch {
       return emptySnapshot()
@@ -176,12 +232,11 @@ export class LocalProgressRepository implements ProgressRepository {
         Array.isArray(parsed.cards)
       )
         return false
-      const base = emptySnapshot()
       this.commit({
-        ...base,
+        version: VERSION,
         cards: sanitizeCards(parsed.cards),
         streak: sanitizeStreak(parsed.streak),
-        settings: { ...base.settings, ...parsed.settings },
+        settings: sanitizeSettings(parsed.settings),
       })
       return true
     } catch {

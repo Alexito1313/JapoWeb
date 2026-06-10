@@ -8,16 +8,7 @@ import { Backdrop } from '../components/Backdrop'
 import { StudyHeader } from '../components/StudyHeader'
 import { useIsDesktop } from '../components/useIsDesktop'
 import { ContentStatus } from '../components/ContentStatus'
-
-function downloadJSON(filename: string, json: string) {
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
-}
+import { buildBackup, downloadJSON } from '../data/backup'
 
 export function StatsScreen() {
   const { variant } = useTheme()
@@ -160,7 +151,7 @@ export function StatsScreen() {
         onClick={() =>
           downloadJSON(
             `sumigo-progreso-${new Date().toISOString().slice(0, 10)}.json`,
-            repo.exportJSON(),
+            buildBackup(repo),
           )
         }
       >

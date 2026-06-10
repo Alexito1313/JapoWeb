@@ -16,8 +16,15 @@ export function AppShell() {
 
   // Primera visita → onboarding (salvo que ya haya progreso guardado).
   useEffect(() => {
-    const onboarded =
-      localStorage.getItem(ONBOARDED_KEY) === '1' || !!localStorage.getItem('japoweb.progress')
+    // Con el almacenamiento bloqueado, getItem LANZA: mejor tratar como
+    // onboarded (dejar pasar) que atrapar al usuario en un bucle de error.
+    let onboarded = true
+    try {
+      onboarded =
+        localStorage.getItem(ONBOARDED_KEY) === '1' || !!localStorage.getItem('japoweb.progress')
+    } catch {
+      /* storage bloqueado */
+    }
     // Fuerza el onboarding en CUALQUIER ruta para un usuario nuevo (antes solo en
     // '/', así que un deep-link a una sub-ruta se lo saltaba entero).
     if (!onboarded && location.pathname !== '/onboarding')
